@@ -1,0 +1,1 @@
+> Tests assume that database vendor software, etc. are installed prior to running any tests.

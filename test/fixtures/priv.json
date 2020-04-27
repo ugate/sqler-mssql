@@ -1,0 +1,10 @@
+{
+  "univ": {
+    "db": {
+      "postgres": {
+        "username":"postgres",
+        "password": "p0stgr3slocal"
+      }
+    }
+  }
+}

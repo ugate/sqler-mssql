@@ -1,0 +1,10 @@
+{
+  "univ": {
+    "db": {
+      "postgres": {
+        "username": "travis",
+        "password": "travis"
+      }
+    }
+  }
+}

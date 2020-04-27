@@ -1,0 +1,40 @@
+# When a tagged commit is pushed the documentation pages and npm module are published/deployed:
+os: linux
+# linux dist that includes C++ compiler needed for native node modules
+dist: bionic
+# npm version patch -m "%s Release"
+language: node_js
+node_js:
+  - "lts/*"
+env:
+  - REPO_VER=v1.3.3 POSTGRESQL_MAJOR=12
+before_install:
+  - wget -O install-mssql.sh https://raw.githubusercontent.com/ugate/repo/$REPO_VER/mssql/install.sh
+  - bash ./install-mssql.sh
+  - rm -rf install-mssql.sh
+branches:
+  only:
+    - master
+    - "/v*/"
+script:
+# - printenv
+  - "npm test"
+deploy:
+  #edge: true # avoid dpl v2 missing api_token
+  - provider: script
+    skip_cleanup: true # deprecated, use cleanup with new dpl ver
+    cleanup: false
+    script: npm run jsdocp-deploy
+    on:
+      tags: true # only on tagging commit
+      branch:
+        - /v(\d+\.)?(\d+\.)?(\*|\d+)$/
+  - provider: npm
+    skip_cleanup: false # deprecated, use cleanup with new dpl ver
+    cleanup: true
+    email: "ugate.public@gmail.com"
+    api_token: $NPM_TOKEN  # Set in the settings page of your repository, as a secure variable
+    on:
+      tags: true # only on tagging commit
+      branch:
+        - /v(\d+\.)?(\d+\.)?(\*|\d+)$/

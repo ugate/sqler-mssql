@@ -1,0 +1,2 @@
+DELETE FROM sqlerpg.TEST
+WHERE ID = :id

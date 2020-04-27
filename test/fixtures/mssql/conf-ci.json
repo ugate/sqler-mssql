@@ -1,0 +1,22 @@
+{
+  "db": {
+    "dialects": {
+      "postgres": "sqler-postgres"
+    },
+    "connections": [
+      {
+        "id": "postgres",
+        "name": "postgres",
+        "dir": "db/postgres",
+        "service": "PostgreSQL",
+        "dialect": "postgres",
+        "pool": {},
+        "driverOptions": {
+          "connection": {
+            "multipleStatements": true
+          }
+        }
+      }
+    ]
+  }
+}
