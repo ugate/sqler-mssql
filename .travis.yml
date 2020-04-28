@@ -7,7 +7,7 @@ language: node_js
 node_js:
   - "lts/*"
 env:
-  - REPO_VER=v1.4.0 POSTGRESQL_MAJOR=12
+  - REPO_VER=v1.4.0 MSSQL_VER=19 MSSQL_SA_PWD="sqlS3rv35local"
 before_install:
   - wget -O install-mssql.sh https://raw.githubusercontent.com/ugate/repo/$REPO_VER/mssql/install.sh
   - bash ./install-mssql.sh
