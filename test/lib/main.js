@@ -23,7 +23,7 @@ const priv = {
   rowCount: 2,
   mgrLogit: !!LOGGER.info,
   vendor: 'mssql',
-  defaultPort: 5432,
+  defaultPort: 1433,
   conf: {}
 };
 

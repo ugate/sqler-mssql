@@ -134,7 +134,8 @@ module.exports = class MSDialect {
     if (dlt.at.logger) {
       dlt.at.logger(`sqler-mssql: Beginning transaction "${txId}" on connection pool "${dlt.at.opts.id}"`);
     }
-    dlt.at.connections[txId] = await dlt.this.getConnection({ transactionId: txId });
+    const plan = await dlt.this.getConnection({ transactionId: txId }, false);
+    dlt.at.connections[txId] = plan.tx;
   }
 
   /**
@@ -148,7 +149,7 @@ module.exports = class MSDialect {
    */
   async exec(sql, opts, frags, meta, errorOpts) {
     const dlt = internal(this);
-    let conn, bndp = {}, rslts;
+    let plan, bndp = {}, bnds = [], esql = sql, rslts;
     try {
       // interpolate and remove unused binds since
       // MSSQL only accepts the exact number of bind parameters (also, cuts down on payload bloat)
@@ -156,32 +157,37 @@ module.exports = class MSDialect {
 
       // driver options query override
       const dopts = opts.driverOptions || {};
-      if (!dopts.query) dopts.query = {};
-      dopts.query.values = [];
-      dopts.query.text = dlt.at.track.positionalBinds(sql, bndp, dopts.query.values, (name, index) => `$${index + 1}`);
 
       const rtn = {};
 
-      if (!opts.transactionId && opts.type === 'READ') {
-        rslts = await dlt.at.pool.request().query(dopts.query);
-        rtn.rows = rslts.rows;
-        rtn.raw = rslts;
-      } else {
-        // name will cause mssql to use a prepared statement
-        if (dopts.query.name === true) dopts.query.name = meta.name;
-        conn = await dlt.this.getConnection(opts);
-        rslts = await conn.query(dopts.query);
-        rtn.rows = rslts.rows;
-        rtn.raw = rslts;
-        if (conn instanceof dlt.at.driver.Transaction) {
-          if (opts.autoCommit) {
-            await operation(dlt, 'commit', false, conn, opts)();
-          } else {
-            dlt.at.state.pending++;
-            rtn.commit = operation(dlt, 'commit', true, conn, opts);
-            rtn.rollback = operation(dlt, 'rollback', true, conn, opts);
-          }
+      // name will cause mssql to use a prepared statement
+      if (dopts.query.name === true) dopts.query.name = meta.name;
+      plan = await dlt.this.getConnection(opts);
+      const usingPs = !plan.tx && plan.conn instanceof dlt.at.driver.PreparedStatement;
+
+      // mssql expects the format: @paramName
+      esql = dlt.at.track.positionalBinds(esql, bndp, bnds, (name, index) => {
+        if (!usingPs) {
+          // mssqsl input/bind parameters
+          plan.conn.input('input_parameter', bndp[name]);
         }
+        return `@${name}`;
+      });
+
+      rslts = await plan.conn[usingPs ? 'prepare' : 'query'](esql);
+      rslts = usingPs ? await plan.conn.execute(bndp) : rslts;
+      rtn.rows = rslts.resultset;
+      rtn.raw = rslts;
+      if (plan.tx) {
+        if (opts.autoCommit) {
+          await operation(dlt, 'commit', false, plan.tx, opts)();
+        } else {
+          dlt.at.state.pending++;
+          rtn.commit = operation(dlt, 'commit', true, plan.tx, opts);
+          rtn.rollback = operation(dlt, 'rollback', true, plan.tx, opts);
+        }
+      } else if (usingPs) {
+        await operation(dlt, 'unprepare', false, plan.conn, opts)();
       }
 
       return rtn;
@@ -196,24 +202,33 @@ module.exports = class MSDialect {
   }
 
   /**
-   * Gets the currently open connection or a new connection when no transaction is in progress
+   * Gets the currently open execution plan or generates a new execution plan
    * @protected
    * @param {MSExecOptions} opts The execution options
-   * @returns {Object} The connection (when present)
+   * @param {Boolean} [connect=true] Truthy to establish a connection
+   * @returns {Object} An object that contains the following fields:
+   * - `conn` - Either a request object or a prepared statement object
+   * - `tx` - The transaction (when an `opts.transactionId` is passed)
    */
-  async getConnection(opts) {
+  async getPlan(opts, connect = true) {
     const dlt = internal(this);
     const txId = opts.transactionId;
-    let conn = txId ? dlt.at.connections[txId] : null;
-    if (!conn) {
+    const plan = {};
+    plan.tx = txId ? dlt.at.connections[txId] : null;
+    if (txId && !plan.tx) {
+      plan.tx = dlt.at.pool.transaction();
+      await plan.tx.begin(opts.isolationLevel);
+    }
+    if (connect) {
       if (txId) {
-        conn = dlt.at.pool.transaction();
-        await conn.begin(opts.isolationLevel);
+        plan.conn = plan.tx.request();
+      } else if (opts.driverOptions && opts.driverOptions.exec && opts.driverOptions.exec.prepare) {
+        plan.conn = dlt.at.driver.PreparedStatement();
       } else {
-        conn = dlt.at.pool.request();
+        plan.conn = dlt.at.pool.request();
       }
     }
-    return conn;
+    return plan;
   }
 
   /**
@@ -227,14 +242,6 @@ module.exports = class MSDialect {
       if (dlt.at.logger) {
         dlt.at.logger(`sqler-mssql: Closing connection pool "${dlt.at.opts.id}" (uncommitted transactions: ${dlt.at.state.pending})`);
       }
-      const cproms = [];
-      for (let txId in dlt.at.connections) {
-        cproms.push(dlt.at.connections[txId].end());
-      }
-      if (cproms.length) {
-        await Promise.all(cproms);
-        dlt.at.connections = {};
-      }
       if (dlt.at.pool) {
         // mssql module contains bug on some occasions calling end w/o a callback
         // may result in unreported errors 
@@ -242,6 +249,7 @@ module.exports = class MSDialect {
           error = err;
         });
       }
+      dlt.at.connections = {};
     } catch (err) {
       error = err;
       if (dlt.at.errorLogger) {
