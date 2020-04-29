@@ -12,6 +12,9 @@ before_install:
   - wget -O install-mssql.sh https://raw.githubusercontent.com/ugate/repo/$REPO_VER/mssql/install.sh
   - bash ./install-mssql.sh
   - rm -rf install-mssql.sh
+  - odbcinst -j
+  - odbcinst -q -d
+  - odbcinst -q -s
 branches:
   only:
     - master

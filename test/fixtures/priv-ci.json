@@ -1,7 +1,7 @@
 {
   "univ": {
     "db": {
-      "postgres": {
+      "mssql": {
         "username": "travis",
         "password": "390Khy7MxeU8N"
       }

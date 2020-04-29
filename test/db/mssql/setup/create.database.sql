@@ -1,1 +1,1 @@
-CREATE SCHEMA IF NOT EXISTS sqlerpg
+CREATE SCHEMA sqlermssql

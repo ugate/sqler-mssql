@@ -22,16 +22,6 @@
  * contains an object it will be _interpolated_ for property values on the `mssql` module.
  * For example, `binds.name = '${SOME_MSSQL_CONSTANT}'` will be interpolated as `binds.name = mssql.SOME_MSSQL_CONSTANT`.
  * @typedef {Manager~ExecOptions} MSExecOptions
- * @property {Object} [driverOptions] The `mssql` module specific options.
- * @property {Object} [driverOptions.query] The options passed into `mssql.Client.query` during {@link Manager.exec}. See the `mssql` module documentation
- * for a full listing of available query options.
- * When a value is a string surrounded by `${}`, it will be assumed to be a _constant_ property that resides on the `mssql` module and will be interpolated
- * accordingly.
- * For example `driverOptions.query.someDriverProp = '${SOME_MSSQL_CONSTANT}'` will be interpolated as
- * `driverOptions.query.someDriverProp = mssql.SOME_MSSQL_CONSTANT`.
- * @property {(String | Boolean)} [driverOptions.query.name] As stated in the `mssql` documentation, the `name` option will cause a perpared statemenet to be
- * used. `sqler-mssql` allows a `true` value to be set to utilize the internally generated SQL file name to be used instead of explicitly defining a
- * name (which is of course, also supported).
  */
 
 /**
@@ -72,13 +62,17 @@ module.exports = class MSDialect {
     dlt.at.debug = debug;
 
     // connection
-    if (priv.host) dlt.at.opts.connection.host = priv.host;
+    if (priv.host) dlt.at.opts.connection.server = priv.host;
+    if (!dlt.at.opts.connection.server) {
+      // default for compatibility
+      dlt.at.opts.connection.server = 'localhost';
+    }
     if (priv.hasOwnProperty('port')) dlt.at.opts.connection.port = priv.port;
     dlt.at.opts.connection.user = priv.username;
     dlt.at.opts.connection.password = priv.password;
 
     // connection pool
-    if (!opts.connection.pool) opts.connection.pool = {};
+    if (!dlt.at.opts.connection.pool) dlt.at.opts.connection.pool = {};
     if (connConf.pool) {
       if (connConf.pool.hasOwnProperty('min')) dlt.at.opts.connection.pool.min = connConf.pool.min;
       if (connConf.pool.hasOwnProperty('max')) dlt.at.opts.connection.pool.max = connConf.pool.max;
@@ -95,7 +89,7 @@ module.exports = class MSDialect {
    */
   async init(opts) {
     const dlt = internal(this), numSql = opts.numOfPreparedStmts;
-    let conn, error;
+    let error;
     try {
       dlt.at.pool = new dlt.at.driver.ConnectionPool(dlt.at.opts.connection);
       if (dlt.at.logger) {
@@ -104,7 +98,7 @@ module.exports = class MSDialect {
           `idleTimeoutMillis=${dlt.at.opts.connection.pool.idleTimeoutMillis} ` +
           `connectionTimeout=${dlt.at.opts.connection.pool.connectionTimeout}`);
       }
-      conn = await dlt.at.pool.connect();
+      await dlt.at.pool.connect();
       return dlt.at.pool;
     } catch (err) {
       error = err;
@@ -117,10 +111,6 @@ module.exports = class MSDialect {
       err.message = `${err.message}\n${msg} for ${JSON.stringify(pconf, null, ' ')}`;
       err.sqlerMSSQL = pconf;
       throw err;
-    } finally {
-      if (conn) {
-        await operation(dlt, 'close', false, conn, opts, error)();
-      }
     }
   }
 
@@ -134,7 +124,7 @@ module.exports = class MSDialect {
     if (dlt.at.logger) {
       dlt.at.logger(`sqler-mssql: Beginning transaction "${txId}" on connection pool "${dlt.at.opts.id}"`);
     }
-    const plan = await dlt.this.getConnection({ transactionId: txId }, false);
+    const plan = await dlt.this.getPlan({ transactionId: txId }, false);
     dlt.at.connections[txId] = plan.tx;
   }
 
@@ -155,21 +145,18 @@ module.exports = class MSDialect {
       // MSSQL only accepts the exact number of bind parameters (also, cuts down on payload bloat)
       bndp = dlt.at.track.interpolate(bndp, opts.binds, dlt.at.driver, props => sql.includes(`:${props[0]}`));
 
-      // driver options query override
-      const dopts = opts.driverOptions || {};
-
       const rtn = {};
 
-      // name will cause mssql to use a prepared statement
-      if (dopts.query.name === true) dopts.query.name = meta.name;
-      plan = await dlt.this.getConnection(opts);
+      plan = await dlt.this.getPlan(opts);
       const usingPs = !plan.tx && plan.conn instanceof dlt.at.driver.PreparedStatement;
+      const inputs = usingPs ? null : [];
 
       // mssql expects the format: @paramName
       esql = dlt.at.track.positionalBinds(esql, bndp, bnds, (name, index) => {
-        if (!usingPs) {
+        if (inputs && !inputs.includes(name)) {
           // mssqsl input/bind parameters
           plan.conn.input('input_parameter', bndp[name]);
+          inputs.push(name);
         }
         return `@${name}`;
       });
@@ -242,14 +229,10 @@ module.exports = class MSDialect {
       if (dlt.at.logger) {
         dlt.at.logger(`sqler-mssql: Closing connection pool "${dlt.at.opts.id}" (uncommitted transactions: ${dlt.at.state.pending})`);
       }
-      if (dlt.at.pool) {
-        // mssql module contains bug on some occasions calling end w/o a callback
-        // may result in unreported errors 
-        await dlt.at.pool.end(err => {
-          error = err;
-        });
+      if (dlt.at.pool) { 
+        dlt.at.pool.close();
+        dlt.at.connections = {};
       }
-      dlt.at.connections = {};
     } catch (err) {
       error = err;
       if (dlt.at.errorLogger) {
@@ -297,40 +280,27 @@ module.exports = class MSDialect {
  */
 function operation(dlt, name, reset, conn, opts, error) {
   return async () => {
-    let ierr;
     try {
       if (dlt.at.logger) {
-        dlt.at.logger(`sqler-mssql: Performing ${name} on connection pool "${dlt.at.opts.id}" (uncommitted transactions: ${dlt.at.state.pending})`);
+        dlt.at.logger(`sqler-mssql: Performing ${name} for connection pool "${dlt.at.opts.id}" (uncommitted transactions: ${dlt.at.state.pending})`);
       }
-      if (name === 'commit' || name === 'rollback') {
-        await conn.query(name.toUpperCase());
-      } else {
-        await conn[name]();
-      }
+      await conn[name]();
       if (reset) { // not to be confused with mssql connection.reset();
         if (opts && opts.transactionId) delete dlt.at.connections[opts.transactionId];
         dlt.at.state.pending = 0;
       }
     } catch (err) {
-      ierr = err;
       if (dlt.at.errorLogger) {
-        dlt.at.errorLogger(`sqler-mssql: Failed to ${name} ${dlt.at.state.pending} transaction(s) with options: ${
-          opts ? JSON.stringify(opts) : 'N/A'}`, ierr);
+        dlt.at.errorLogger(`sqler-mssql: Failed to ${name} ${dlt.at.state.pending} on ${
+            (conn.constructor && conn.constructor.name) || 'connection'
+          } with options: ${
+            opts ? JSON.stringify(opts) : 'N/A'
+          }`, err);
       }
       if (error) {
         error[`${name}Error`] = err;
       } else {
         throw err;
-      }
-    } finally {
-      if (name !== 'end' && name !== 'release') {
-        try {
-          await conn.release();
-        } catch (endErr) {
-          if (ierr) {
-            ierr.releaseError = endErr;
-          }
-        }
       }
     }
     return dlt.at.state.pending;

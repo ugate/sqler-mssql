@@ -1,1 +1,1 @@
-DROP TABLE sqlerpg.TEST2
+DROP TABLE "sqlermssql.TEST2"

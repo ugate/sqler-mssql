@@ -1,15 +1,15 @@
 {
   "db": {
     "dialects": {
-      "postgres": "sqler-postgres"
+      "mssql": "sqler-mssql"
     },
     "connections": [
       {
-        "id": "postgres",
-        "name": "postgres",
-        "dir": "db/postgres",
-        "service": "PostgreSQL",
-        "dialect": "postgres",
+        "id": "mssql",
+        "name": "mssql",
+        "dir": "db/mssql",
+        "service": "MSSQL",
+        "dialect": "mssql",
         "pool": {},
         "driverOptions": {
           "connection": {

@@ -1,1 +1,1 @@
-DROP SCHEMA sqlerpg
+DROP SCHEMA sqlermssql
