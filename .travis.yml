@@ -7,14 +7,12 @@ language: node_js
 node_js:
   - "lts/*"
 env:
-  - REPO_VER=v1.4.1 MSSQL_VER=2019 MSSQL_SA_PWD=sqlS3rv35local MSSQL_PWD=390Khy7MxeU8N
+  - REPO_VER=v1.5.5 MSSQL_VER=2019 MSSQL_SA_PWD=sqlS3rv35local MSSQL_PWD=390Khy7MxeU8N
 before_install:
+  - sudo apt-get install unixodbc unixodbc-dev
   - wget -O install-mssql.sh https://raw.githubusercontent.com/ugate/repo/$REPO_VER/mssql/install.sh
   - bash ./install-mssql.sh
   - rm -rf install-mssql.sh
-  - odbcinst -j
-  - odbcinst -q -d
-  - odbcinst -q -s
 branches:
   only:
     - master
