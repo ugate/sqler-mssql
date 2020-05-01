@@ -25,6 +25,15 @@
  */
 
 /**
+ * @typedef {Manager~Transactionoptions} MSTransactionOptions
+ * @property {Object} [driverOptions] The `mssql` module specific options pertaining transations
+ * @property {String} [driverOptions.isolationLevel] Controls the locking and row versioning behavior of MSSQL statements issued by a connection.
+ * When a property value is a string surrounded by `${}`, it will be assumed to be a _constant_ property that resides on the `mssql` module and will be
+ * interpolated accordingly.
+ * For example `driverOptions.isolationLevel = ${SERIALIZABLE}` will be interpolated to `driverOptions.isolationLevel = mssql.SERIALIZABLE`.
+ */
+
+/**
  * MSSQL {@link Dialect} implementation for [`sqler`](https://ugate.github.io/sqler/).
  * Typically, an application will not have to directly interact with the dialect. All API interactions will take place using the {@link Manager}
  * interface that resides within the [`sqler`](https://ugate.github.io/sqler/) module.
@@ -89,7 +98,6 @@ module.exports = class MSDialect {
    */
   async init(opts) {
     const dlt = internal(this), numSql = opts.numOfPreparedStmts;
-    let error;
     try {
       dlt.at.pool = new dlt.at.driver.ConnectionPool(dlt.at.opts.connection);
       if (dlt.at.logger) {
@@ -101,7 +109,6 @@ module.exports = class MSDialect {
       await dlt.at.pool.connect();
       return dlt.at.pool;
     } catch (err) {
-      error = err;
       const msg = `sqler-mssql: connection pool "${dlt.at.opts.id}" could not be created`;
       if (dlt.at.errorLogger) {
         dlt.at.errorLogger(`${msg} (passwords are omitted from error) ${JSON.stringify(err, null, ' ')}`);
@@ -117,14 +124,20 @@ module.exports = class MSDialect {
   /**
    * Begins a transaction by opening a connection from the pool
    * @param {String} txId The transaction ID that will be started
+   * @param {MSTransactionOptions} opts The transaction options
    */
-  async beginTransaction(txId) {
+  async beginTransaction(txId, opts) {
     const dlt = internal(this);
     if (dlt.at.connections[txId]) return;
     if (dlt.at.logger) {
-      dlt.at.logger(`sqler-mssql: Beginning transaction "${txId}" on connection pool "${dlt.at.opts.id}"`);
+      dlt.at.logger(`sqler-mssql: Beginning transaction "${txId}" on connection pool "${dlt.at.opts.id}" (isolation level: ${
+        opts.isolationLevel || 'default'
+      })`);
     }
-    const plan = await dlt.this.getPlan({ transactionId: txId }, false);
+    const plan = await dlt.this.getPlan({
+      transactionId: txId,
+      isolationLevel: opts.isolationLevel
+    }, false);
     dlt.at.connections[txId] = plan.tx;
   }
 
@@ -149,21 +162,21 @@ module.exports = class MSDialect {
 
       plan = await dlt.this.getPlan(opts);
       const usingPs = !plan.tx && plan.conn instanceof dlt.at.driver.PreparedStatement;
-      const inputs = usingPs ? null : [];
+      const bnames = usingPs ? null : [];
 
       // mssql expects the format: @paramName
       esql = dlt.at.track.positionalBinds(esql, bndp, bnds, (name, index) => {
-        if (inputs && !inputs.includes(name)) {
+        if (bnames && !bnames.includes(name)) {
           // mssqsl input/bind parameters
-          plan.conn.input('input_parameter', bndp[name]);
-          inputs.push(name);
+          plan.conn.input(name, bndp[name]);
+          bnames.push(name);
         }
         return `@${name}`;
       });
 
       rslts = await plan.conn[usingPs ? 'prepare' : 'query'](esql);
       rslts = usingPs ? await plan.conn.execute(bndp) : rslts;
-      rtn.rows = rslts.resultset;
+      rtn.rows = rslts.recordset;
       rtn.raw = rslts;
       if (plan.tx) {
         if (opts.autoCommit) {
@@ -184,6 +197,7 @@ module.exports = class MSDialect {
         dlt.at.errorLogger(`Failed to execute the following SQL: ${sql}`, err);
       }
       err.message += msg;
+      err.sqlerMSSQL = esql;
       throw err;
     }
   }
@@ -250,10 +264,10 @@ module.exports = class MSDialect {
     const dlt = internal(this);
     return {
       connection: {
-        count: (dlt.at.pool && dlt.at.pool.totalCount) || 0,
-        inUse: (dlt.at.pool && dlt.at.pool.waitingCount) || 0
+        count: (dlt.at.pool && dlt.at.pool.size) || 0,
+        inUse: (dlt.at.pool && dlt.at.pool.available) || 0
       },
-      pending: dlt.at.state.pending || (dlt.at.pool && dlt.at.pool.waitingCount) || 0
+      pending: dlt.at.state.pending || (dlt.at.pool && dlt.at.pool.pending) || 0
     };
   }
 

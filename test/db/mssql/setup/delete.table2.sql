@@ -1,1 +1,1 @@
-DROP TABLE "sqlermssql.TEST2"
+DROP TABLE sqlermssql.TEST2

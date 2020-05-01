@@ -1,1 +1,1 @@
-CREATE TABLE "sqlermssql.TEST" ("ID" integer not null primary key, "NAME" varchar(255), "CREATED_AT" datetime2, "UPDATED_AT" datetime2)
+CREATE TABLE sqlermssql.TEST ("ID" integer not null primary key, "NAME" varchar(255), "CREATED_AT" datetime2, "UPDATED_AT" datetime2)

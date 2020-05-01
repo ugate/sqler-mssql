@@ -130,11 +130,11 @@ class Tester {
           if (lastUpdated) expect(updated, `CRUD ${label} row.updated > lastUpdated`).greaterThan(lastUpdated);
           // expect binary report image
           if (row.report) {
-            expect(row.report, 'row.report').to.be.buffer();
+            expect(row.report, 'row.report').to.be.string();
             if (row.reportPath) {
               const reportBuffer = readChunk.sync(row.reportPath, 0, 12);
               const reportType = imageType(reportBuffer);
-              expect(reportType, 'row.report Image Type').to.be.object();
+              expect(reportType, `row.report Image Type @ ${row.reportPath}`).to.be.object();
               expect(reportType.mime, 'row.report Image Mime-Type').to.equal('image/png');
             }
           }

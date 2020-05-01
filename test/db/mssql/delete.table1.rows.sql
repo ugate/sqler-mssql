@@ -1,2 +1,2 @@
-DELETE FROM "sqlermssql.TEST"
+DELETE FROM sqlermssql.TEST
 WHERE ID = :id

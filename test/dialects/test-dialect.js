@@ -14,6 +14,8 @@ module.exports = class MSTestDialect extends MSDialect {
   constructor(priv, connConf, track, errorLogger, logger, debug) {
     super(priv, connConf, track, errorLogger, logger, debug);
 
+    this.connections = {};
+
     expect(priv, 'priv').to.be.object();
 
     expect(connConf, 'connConf').to.be.object();
@@ -46,6 +48,16 @@ module.exports = class MSTestDialect extends MSDialect {
     const pool = await super.init(opts);
 
     return pool;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async beginTransaction(txId, opts) {
+    if (!this.connections.hasOwnProperty(txId)) this.connections[txId] = {};
+    expect(opts, 'transaction options').to.be.object();
+
+    return super.init(txId, opts);
   }
 
   /**
