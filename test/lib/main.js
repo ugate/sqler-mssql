@@ -117,7 +117,8 @@ class Tester {
       const rslts = Array.isArray(rtn) ? rtn : [rtn];
       let cnt = 0, updated;
       for (let rslt of rslts) {
-        if (!rslt.rows) continue;
+        // TODO : MSSQL may have a length > than the number of entries
+        if (!rslt || !rslt.rows) continue;
         expect(rslt.rows, `CRUD ${label} rows`).array();
         if (!label.includes('read')) continue;
         cnt++;
@@ -130,7 +131,7 @@ class Tester {
           if (lastUpdated) expect(updated, `CRUD ${label} row.updated > lastUpdated`).greaterThan(lastUpdated);
           // expect binary report image
           if (row.report) {
-            expect(row.report, 'row.report').to.be.string();
+            expect(row.report, 'row.report').to.be.buffer();
             if (row.reportPath) {
               const reportBuffer = readChunk.sync(row.reportPath, 0, 12);
               const reportType = imageType(reportBuffer);
@@ -172,49 +173,6 @@ class Tester {
     return rslts;
   }
 
-  static async execDriverOptionsAlt() {
-    const id = 400, name = 'TEST ALT', date = new Date();
-    let created, rslt;
-    try {
-      created = await priv.mgr.db[priv.vendor].create.table1.rows({
-        binds: {
-          id, name, created: date, updated: date
-        },
-        driverOptions: {
-          query: {
-            name: true // use internal stored procedure name
-          }
-        }
-      });
-      rslt = await priv.mgr.db[priv.vendor].read.table.rows({
-        binds: { name },
-        driverOptions: {
-          query: {
-            rowMode: 'array'
-          }
-        }
-      });
-    } finally {
-      if (created) {
-        await priv.mgr.db[priv.vendor].delete.table1.rows({
-          binds: { id }
-        });
-      }
-    }
-
-    if (rslt) { // ensure the results are in array format from rowMode
-      expect(rslt.rows, 'alt rslt.rows').to.be.array();
-      expect(rslt.rows, 'alt rslt.rows').to.have.length(1);
-      expect(rslt.rows[0], 'alt rslt.rows[0]').to.be.array();
-      expect(rslt.rows[0], 'alt rslt.rows[0]').to.have.length(5);
-      expect(rslt.rows[0][0], 'alt rslt.rows[0][0] (id)').to.equal(id);
-      expect(rslt.rows[0][1], 'alt rslt.rows[0][1] (name)').to.equal(name);
-      expect(rslt.rows[0][2], 'alt rslt.rows[0][2] (report)').to.be.null();
-      expect(rslt.rows[0][3], 'alt rslt.rows[0][3] (created)').to.equal(date);
-      expect(rslt.rows[0][4], 'alt rslt.rows[0][4] (updated)').to.equal(date);
-    }
-  }
-
   static async sqlInvalidThrow() {
     return priv.mgr.db[priv.vendor].error.update.non.exist({}, ['error']);
   }
@@ -236,13 +194,6 @@ class Tester {
     const conf = getConf({ pool: null });
     conf.univ.db[priv.vendor].username = 'invalid';
     conf.univ.db[priv.vendor].password = 'invalid';
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit || generateTestAbyssLogger);
-    await mgr.init();
-    return mgr.close();
-  }
-
-  static async poolNone() {
-    const conf = getConf({ pool: null, connection: null });
     const mgr = new Manager(conf, priv.cache, priv.mgrLogit || generateTestAbyssLogger);
     await mgr.init();
     return mgr.close();
@@ -279,7 +230,7 @@ class Tester {
     return mgr.close();
   }
 
-  static async driverOptionsNoneThrow() {
+  static async driverOptionsNone() {
     const conf = getConf({ driverOptions: null });
     const mgr = new Manager(conf, priv.cache, priv.mgrLogit);
     await mgr.init();
@@ -295,53 +246,6 @@ class Tester {
       }
     });
     const mgr = new Manager(conf, priv.cache, priv.mgrLogit);
-    await mgr.init();
-    return mgr.close();
-  }
-
-  static async driverOptionsPoolConnSwap() {
-    const conf = getConf({
-      driverOptions: (prop, conn) => {
-        conn[prop] = conn[prop] || {};
-        if (conn[prop].pool && !conn[prop].connection) {
-          conn[prop].connection = conn[prop].pool;
-          conn[prop].pool = null;
-        } else if (!conn[prop].pool && conn[prop].connection) {
-          conn[prop].pool = conn[prop].connection;
-          conn[prop].connection = null;
-        } else {
-          conn[prop].pool = {};
-          conn[prop].connection = {};
-        }
-      }
-    });
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit);
-    await mgr.init();
-    return mgr.close();
-  }
-
-  static async driverOptionsNamedPlaceholdersSwap() {
-    const conf = getConf({
-      driverOptions: (prop, conn) => {
-        conn[prop] = conn[prop] || {};
-        const cont = conn[prop].pool || conn[prop].connection || {};
-        cont.namedPlaceholders = !cont.namedPlaceholders;
-      }
-    });
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit);
-    await mgr.init();
-    return mgr.close();
-  }
-
-  static async driverOptionsClient() {
-    const conf = getConf({
-      driverOptions: (prop, conn) => {
-        conn[prop] = conn[prop] || {};
-        conn[prop].client = conn[prop].client || {};
-        conn[prop].client.query_timeout = conn[prop].client.query_timeout || 100;
-      }
-    });
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit || generateTestAbyssLogger);
     await mgr.init();
     return mgr.close();
   }

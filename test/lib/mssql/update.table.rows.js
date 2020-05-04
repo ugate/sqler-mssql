@@ -21,10 +21,15 @@ module.exports = async function runExample(manager, connName) {
 
   // Using an explicit transaction:
   try {
+    // override isolation level (optional, see mssql module for available options)
+    const txOpts = { isolationLevel: "${SERIALIZABLE}" };
     // start a transaction
-    const txId = await manager.db[connName].beginTransaction();
+    const txId = await manager.db[connName].beginTransaction(txOpts);
 
     // Example execution in parallel (same transacion)
+    // NOTE: Internally, transactions are ran in series since that is the
+    // contract definition, but for API compatibility they can be ran in
+    // parallel from a Manager perspective
     rtn[rtnIdx++] = manager.db[connName].update.table1.rows({
       autoCommit: false,
       transactionId: txId, // ensure execution takes place within transaction
@@ -51,6 +56,9 @@ module.exports = async function runExample(manager, connName) {
   // Example execution in series (different implicit transactions)
   // Using an implicit transcation (autoCommit defaults to true):
   rtn[rtnIdx++] = await manager.db[connName].update.table1.rows({
+    driverOptions: {
+      //prepare: true // illustrate the use of prepared statements
+    },
     binds: binds1
   });
   rtn[rtnIdx++] = await manager.db[connName].update.table2.rows({

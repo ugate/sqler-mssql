@@ -22,15 +22,17 @@
  * contains an object it will be _interpolated_ for property values on the `mssql` module.
  * For example, `binds.name = '${SOME_MSSQL_CONSTANT}'` will be interpolated as `binds.name = mssql.SOME_MSSQL_CONSTANT`.
  * @typedef {Manager~ExecOptions} MSExecOptions
+ * @property {Object} [driverOptions] The `mssql` module specific options pertaining executions
+ * @property {Boolean} [driverOptions.prepare] Truthy to execute SQL as a prepared statement
  */
 
 /**
  * @typedef {Manager~Transactionoptions} MSTransactionOptions
- * @property {Object} [driverOptions] The `mssql` module specific options pertaining transations
+ * @property {Object} [driverOptions] The `mssql` module specific options pertaining to transations
  * @property {String} [driverOptions.isolationLevel] Controls the locking and row versioning behavior of MSSQL statements issued by a connection.
- * When a property value is a string surrounded by `${}`, it will be assumed to be a _constant_ property that resides on the `mssql` module and will be
- * interpolated accordingly.
- * For example `driverOptions.isolationLevel = ${SERIALIZABLE}` will be interpolated to `driverOptions.isolationLevel = mssql.SERIALIZABLE`.
+ * When a property value is a string surrounded by `${}`, it will be assumed to be a _constant_ property that resides on the `mssql` module within
+ * `mssql.ISOLATION_LEVEL` and will be interpolated accordingly.
+ * For example `driverOptions.isolationLevel = ${SERIALIZABLE}` will be interpolated to `driverOptions.isolationLevel = mssql.ISOLATION_LEVEL.SERIALIZABLE`.
  */
 
 /**
@@ -51,7 +53,7 @@ module.exports = class MSDialect {
    * @param {Boolean} [debug] A flag that indicates the dialect should be run in debug mode (if supported)
    */
   constructor(priv, connConf, track, errorLogger, logger, debug) {
-    if (!connConf.driverOptions) throw new Error('Connection configuration is missing required driverOptions');
+    const dopts = connConf.driverOptions || {};
     const dlt = internal(this);
     dlt.at.track = track;
     dlt.at.driver = require('mssql');
@@ -59,7 +61,7 @@ module.exports = class MSDialect {
     dlt.at.opts = {
       autoCommit: true, // default autoCommit = true to conform to sqler
       id: `sqlerMSSQLGen${Math.floor(Math.random() * 10000)}`,
-      connection: connConf.driverOptions.connection ? dlt.at.track.interpolate({}, connConf.driverOptions.connection, dlt.at.driver) : {}
+      connection: dopts.connection ? dlt.at.track.interpolate({}, dopts.connection, dlt.at.driver) : {}
     };
     // sqler compatible state
     dlt.at.state = {
@@ -129,16 +131,17 @@ module.exports = class MSDialect {
   async beginTransaction(txId, opts) {
     const dlt = internal(this);
     if (dlt.at.connections[txId]) return;
+    const topts = dlt.at.track.interpolate({}, opts, dlt.at.driver.ISOLATION_LEVEL);
     if (dlt.at.logger) {
       dlt.at.logger(`sqler-mssql: Beginning transaction "${txId}" on connection pool "${dlt.at.opts.id}" (isolation level: ${
-        opts.isolationLevel || 'default'
+        topts.isolationLevel || 'default'
       })`);
     }
     const plan = await dlt.this.getPlan({
       transactionId: txId,
-      isolationLevel: opts.isolationLevel
-    }, false);
-    dlt.at.connections[txId] = plan.tx;
+      isolationLevel: topts.isolationLevel
+    });
+    dlt.at.connections[txId] = plan;
   }
 
   /**
@@ -161,8 +164,7 @@ module.exports = class MSDialect {
       const rtn = {};
 
       plan = await dlt.this.getPlan(opts);
-      const usingPs = !plan.tx && plan.conn instanceof dlt.at.driver.PreparedStatement;
-      const bnames = usingPs ? null : [];
+      const bnames = plan.isPreparedStatement ? null : [];
 
       // mssql expects the format: @paramName
       esql = dlt.at.track.positionalBinds(esql, bndp, bnds, (name, index) => {
@@ -174,8 +176,8 @@ module.exports = class MSDialect {
         return `@${name}`;
       });
 
-      rslts = await plan.conn[usingPs ? 'prepare' : 'query'](esql);
-      rslts = usingPs ? await plan.conn.execute(bndp) : rslts;
+      rslts = await plan.run(esql);
+      rslts = plan.isPreparedStatement ? await plan.conn.execute(bndp) : rslts;
       rtn.rows = rslts.recordset;
       rtn.raw = rslts;
       if (plan.tx) {
@@ -186,7 +188,7 @@ module.exports = class MSDialect {
           rtn.commit = operation(dlt, 'commit', true, plan.tx, opts);
           rtn.rollback = operation(dlt, 'rollback', true, plan.tx, opts);
         }
-      } else if (usingPs) {
+      } else if (plan.isPreparedStatement) {
         await operation(dlt, 'unprepare', false, plan.conn, opts)();
       }
 
@@ -210,24 +212,37 @@ module.exports = class MSDialect {
    * @returns {Object} An object that contains the following fields:
    * - `conn` - Either a request object or a prepared statement object
    * - `tx` - The transaction (when an `opts.transactionId` is passed)
+   * - `run` - The async function(sql) that will either  _prepare_ the passed SQL or _query_ the passed SQL
+   * (ensures transactions are ran in _series_ , even when user execution is in _parallel_)
    */
   async getPlan(opts, connect = true) {
     const dlt = internal(this);
     const txId = opts.transactionId;
-    const plan = {};
-    plan.tx = txId ? dlt.at.connections[txId] : null;
-    if (txId && !plan.tx) {
-      plan.tx = dlt.at.pool.transaction();
+    let plan = txId ? dlt.at.connections[txId] : null;
+    if (txId && !plan) {
+      plan = {
+        count: 1,
+        tx: dlt.at.pool.transaction()
+      };
       await plan.tx.begin(opts.isolationLevel);
     }
-    if (connect) {
+    if (connect && (!plan || !plan.conn)) {
+      if (!plan) plan = {};
       if (txId) {
         plan.conn = plan.tx.request();
-      } else if (opts.driverOptions && opts.driverOptions.exec && opts.driverOptions.exec.prepare) {
-        plan.conn = dlt.at.driver.PreparedStatement();
+      } else if (opts.driverOptions && opts.driverOptions.prepare) {
+        plan.conn = new dlt.at.driver.PreparedStatement();
+        plan.isPreparedStatement = true;
       } else {
         plan.conn = dlt.at.pool.request();
       }
+      const pends = [];
+      plan.run = async sql => {
+        if (pends.length) await Promise.all(pends);
+        const prom = plan.conn[plan.isPreparedStatement ? 'prepare' : 'query'](sql);
+        if (plan.tx) pends.push(prom);
+        return prom;
+      };
     }
     return plan;
   }

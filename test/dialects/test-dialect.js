@@ -57,7 +57,7 @@ module.exports = class MSTestDialect extends MSDialect {
     if (!this.connections.hasOwnProperty(txId)) this.connections[txId] = {};
     expect(opts, 'transaction options').to.be.object();
 
-    return super.init(txId, opts);
+    return super.beginTransaction(txId, opts);
   }
 
   /**
