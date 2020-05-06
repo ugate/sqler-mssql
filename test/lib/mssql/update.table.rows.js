@@ -21,10 +21,12 @@ module.exports = async function runExample(manager, connName) {
 
   // Using an explicit transaction:
   try {
-    // override isolation level (optional, see mssql module for available options)
-    const txOpts = { isolationLevel: "${SERIALIZABLE}" };
     // start a transaction
-    const txId = await manager.db[connName].beginTransaction(txOpts);
+    const txId = await manager.db[connName].beginTransaction({
+      // override isolation level
+      // (optional, see mssql module for available options)
+      isolationLevel: "${SERIALIZABLE}"
+    });
 
     // Example execution in parallel (same transacion)
     // NOTE: Internally, transactions are ran in series since that is the
@@ -40,6 +42,7 @@ module.exports = async function runExample(manager, connName) {
       transactionId: txId, // ensure execution takes place within transaction
       binds: binds2
     });
+    // could have also ran is series by awaiting when SQL function is called
     rtn[0] = await rtn[0];
     rtn[1] = await rtn[1];
 
@@ -47,23 +50,50 @@ module.exports = async function runExample(manager, connName) {
     await rtn[0].commit();
   } catch (err) {
     if (rtn[0]) {
-      // could rollbakc using either one of the returned results
+      // could rollback using either one of the returned results
       await rtn[0].rollback();
     }
     throw err;
   }
 
-  // Example execution in series (different implicit transactions)
+  // Example execution of prepared statements (in parallel)
   // Using an implicit transcation (autoCommit defaults to true):
-  rtn[rtnIdx++] = await manager.db[connName].update.table1.rows({
-    driverOptions: {
-      //prepare: true // illustrate the use of prepared statements
-    },
-    binds: binds1
-  });
-  rtn[rtnIdx++] = await manager.db[connName].update.table2.rows({
-    binds: binds2
-  });
+  rtn.psRslts = new Array(2); // don't exceed connection pool count
+  const bindTypes = {
+    id: "${Int}",
+    name: "${VarChar}",
+    updated: "${DateTime}"
+  };
+  try {
+    for (let i = 0; i < rtn.psRslts.length; i++) {
+      binds1.name += ` From Prepared Statement iteration #${i}`;
+      rtn.psRslts[i] = manager.db[connName].update.table1.rows({
+        // flag the SQL execution as a prepared statement
+        // this will cause the statement to be prepared
+        // and a dedicated connection to be allocated from
+        // the pool just before the first SQL executes
+        prepareStatement: true,
+        driverOptions: {
+          // really only need the bind types on the first
+          // prepared statement call since that is when
+          // the statement is prepared
+          bindTypes
+        },
+        binds: binds1
+      });
+    }
+    // wait for parallel executions to complete
+    for (let i = 0; i < rtn.psRslts.length; i++) {
+      rtn.psRslts[i] = await rtn.psRslts[i];
+    }
+  } finally {
+    // could call unprepare using any of the returned execution results
+    if (rtn.psRslts[0]) {
+      // since prepareStatement = true, we need to close the statement
+      // and release the statement connection back to the pool
+      await rtn.psRslts[0].unprepare();
+    }
+  }
 
   return rtn;
 };

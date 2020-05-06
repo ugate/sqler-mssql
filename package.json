@@ -1,5 +1,5 @@
 {
-  "name": "sqler-mysql",
+  "name": "sqler-mssql",
   "version": "1.0.0",
   "description": "@ugate/sqler dialect for SQL Server",
   "main": "index.js",
@@ -41,7 +41,7 @@
     "moment-db": "^2.0.0",
     "mssql": "^6.2.0",
     "read-chunk": "^3.2.0",
-    "sqler": "^5.9.0"
+    "sqler": "^5.11.0"
   },
   "files": [
     "/index.js",
