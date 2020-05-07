@@ -167,19 +167,22 @@ module.exports = class MSDialect {
 
       plan = await dlt.this.getPlan(opts, meta);
       const isPrepared = plan.stmts && plan.stmts.has(meta.path);
+      const pso = isPrepared && plan.stmts.get(meta.path);
       const bnames = [];
 
       // mssql expects the format: @paramName
       esql = dlt.at.track.positionalBinds(esql, bndp, bnds, (name, index) => {
-        if (bnames && !bnames.includes(name)) {
+        if (!bnames.includes(name)) {
           // mssqsl input/bind parameters
           const btype = bindTypes && bindTypes[name];
-          if (isPrepared) {
+          if (isPrepared && !pso.bindTypes[name]) {
             if (!btype) {
-              throw new Error(`Prepared statements require "execOpts.driverOptions.bindTypes" for "${name}" on "${meta.path}"`);
+              throw new Error(`Prepared statements require a "execOpts.driverOptions.bindTypes" to be set for bind varable ` + 
+                `"${name}" for SQL "${meta.name}"`);
             }
-            plan.stmts.get(meta.path).ps.input(name, btype);
-          } else {
+            pso.ps.input(name, btype);
+            pso.bindTypes[name] = btype;
+          } else if (!isPrepared) {
             if (btype) plan.req.input(name, btype, bndp[name]);
             else plan.req.input(name, bndp[name]);
           }
@@ -217,12 +220,13 @@ module.exports = class MSDialect {
 
       return rtn;
     } catch (err) {
-      const msg = ` (BINDS: [${Object.keys(bndp)}], BIND TYPES: ${JSON.stringify(bindTypes)}, FRAGS: ${Array.isArray(frags) ? frags.join(', ') : frags})`;
       if (dlt.at.errorLogger) {
-        dlt.at.errorLogger(`Failed to execute the following SQL: ${sql}`, err);
+        dlt.at.errorLogger(`Failed to execute the following SQL at ${meta.path}:\n${sql}`, err);
       }
-      err.message += msg;
-      err.sqlerMSSQL = esql;
+      err.sqler = {
+        mssql: esql,
+        bindTypes
+      };
       throw err;
     }
   }
@@ -245,12 +249,14 @@ module.exports = class MSDialect {
     let plan = txId ? dlt.at.transactions.get(txId) : null;
     if (txId && !plan) {
       plan = {
+        txId,
         tx: dlt.at.pool.transaction()
       };
       await plan.tx.begin(opts.isolationLevel);
     }
     if (meta && (!plan || !plan.conn)) {
       if (!plan) plan = {};
+      plan.bindNames = plan.bindNames || [];
       if (opts.prepareStatement) {
         if (!plan.stmts) plan.stmts = new Map();
         const pso = plan.stmts.has(meta.path) ? plan.stmts.get(meta.path) : null;
@@ -280,7 +286,8 @@ module.exports = class MSDialect {
           plan.stmts.set(meta.path, {
             txId,
             inTx: !!plan.tx,
-            ps: new dlt.at.driver.PreparedStatement(plan.tx || dlt.at.pool)
+            ps: new dlt.at.driver.PreparedStatement(plan.tx || dlt.at.pool),
+            bindTypes: {}
           });
         }
       } else if (txId) {
@@ -296,10 +303,10 @@ module.exports = class MSDialect {
           prom = new Promise(async (resolve, reject) => {
             try {
               const pso = plan.stmts.get(meta.path);
-              if (!pso.prepared) {
-                await pso.ps.prepare(sql);
-                pso.prepared = true;
+              if (!pso.preparePromise) {
+                pso.preparePromise = pso.ps.prepare(sql);
               }
+              await pso.preparePromise;
               resolve(await pso.ps.execute(sql));
             } catch (err) { // may contain: err.precedingErrors
               reject(err);

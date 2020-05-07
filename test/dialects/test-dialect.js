@@ -14,7 +14,7 @@ module.exports = class MSTestDialect extends MSDialect {
   constructor(priv, connConf, track, errorLogger, logger, debug) {
     super(priv, connConf, track, errorLogger, logger, debug);
 
-    this.connections = {};
+    this.track = track;
 
     expect(priv, 'priv').to.be.object();
 
@@ -54,8 +54,14 @@ module.exports = class MSTestDialect extends MSDialect {
    * @inheritdoc
    */
   async beginTransaction(txId, opts) {
-    if (!this.connections.hasOwnProperty(txId)) this.connections[txId] = {};
+    expect(txId, 'transaction identifier').to.be.string();
+    expect(txId, 'transaction identifier').to.not.be.empty();
     expect(opts, 'transaction options').to.be.object();
+
+    if (opts.hasOwnProperty('isolationLevel')) {
+      const topts = this.track.interpolate({}, opts, this.driver.ISOLATION_LEVEL);
+      expect(topts.isolationLevel, 'opts.isolationLevel').to.be.number();
+    }
 
     return super.beginTransaction(txId, opts);
   }
@@ -75,9 +81,13 @@ module.exports = class MSTestDialect extends MSDialect {
     expect(state.connection.count, 'dialect.connection.count').to.be.number();
     expect(state.connection.inUse, 'dialect.connection.inUse').to.be.number();
 
+
+
     expect(meta, 'meta').to.be.object();
-    expect(meta.name, 'meta').to.be.string();
-    expect(meta.name, 'meta').to.not.be.empty();
+    expect(meta.name, 'meta.name').to.be.string();
+    expect(meta.name, 'meta.name').to.not.be.empty();
+    expect(meta.path, 'meta.path').to.be.string();
+    expect(meta.path, 'meta.path').to.not.be.empty();
 
     return super.exec(sql, opts, frags, meta, errorOpts);
   }
@@ -99,22 +109,4 @@ function expectDriverOptions(opts, dlt) {
   expect(dlt.driver, `${dlt.constructor.name} driver`).to.be.object();
   if (!opts.driverOptions) return;
   expect(opts.driverOptions, 'connConf.driverOptions').to.be.object();
-  if (!opts.global) return;
-  expect(opts.driverOptions.global, 'connConf.driverOptions.global').to.be.object();
-  //expect(opts.driverOptions.global.autoCommit, 'connConf.driverOptions.global.autoCommit = dlt.isAutocommit').to.equal(dlt.isAutocommit());
-  for (let odb in opts.driverOptions.global) {
-    expect(opts.driverOptions.global[odb], `connConf.driverOptions.global.${odb} = dlt.driver.${odb}`).to.be.equal(dlt.driver[odb]);
-  }
 }
-
-// private mapping
-let map = new WeakMap();
-let internal = function(object) {
-  if (!map.has(object)) {
-    map.set(object, {});
-  }
-  return {
-    at: map.get(object),
-    this: object
-  };
-};

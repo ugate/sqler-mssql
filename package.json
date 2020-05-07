@@ -7,7 +7,7 @@
     "node": ">=12"
   },
   "scripts": {
-    "test": "lab -v -P test -c --coverage-exclude lib -t 85 -e prod",
+    "test": "lab --leaks -v -P test -c --coverage-exclude lib -t 85 -e prod",
     "test-debug": "lab --inspect-brk -v -P test -c --coverage-exclude lib -t 85 -e prod",
     "test-crud": "env NODE_ENV=test node test/lib/main.js crud",
     "jsdocp": "jsdocp ./jsdocp/jsdoc.json",

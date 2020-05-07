@@ -15,4 +15,6 @@ npm install mssql
 
 Connection and execution option extensions can be found under the API docs for [globals](global.html).
 
+> ℹ️ : In order to maintain consistency across database vendors, all MSSQL bind parameters should be in the format `:<MY_BIND_VAR>` (e.g. `:myBindVarName`)
+
 ### 💡 [SQL Server Usage](tutorial-2-usage.html)
