@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Usage - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+  <!-- https://realfavicongenerator.net/ -->
+  
+    <link
+      
+      rel="apple-touch-icon" 
+      
+      sizes="180x180" 
+      
+      href="apple-touch-icon.png" 
+      
+    >
+  
+    <link
+      
+      rel="icon" 
+      
+      type="image/png" 
+      
+      sizes="32x32" 
+      
+      href="favicon-32x32.png" 
+      
+    >
+  
+    <link
+      
+      rel="icon" 
+      
+      type="image/png" 
+      
+      sizes="16x16" 
+      
+      href="favicon-16x16.png" 
+      
+    >
+  
+    <link
+      
+      rel="manifest" 
+      
+      href="site.webmanifest" 
+      
+    >
+  
+    <link
+      
+      rel="mask-icon" 
+      
+      type="image/png" 
+      
+      sizes="16x16" 
+      
+      href="safari-pinned-tab.svg" 
+      
+      color="#ffab40" 
+      
+    >
+  
+    <link
+      
+      type="text/css" 
+      
+      rel="stylesheet" 
+      
+      href="pkg-styles/pkg-style.css" 
+      
+    >
+  
+
+  
+    <meta
+      
+      name="msapplication-TileColor" 
+      
+      content="#ffab40" 
+      
+    >
+  
+    <meta
+      
+      name="theme-color" 
+      
+      content="#bdbdbd" 
+      
+    >
+  
+    <meta
+      
+      name="viewport" 
+      
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" 
+      
+    >
+  
+
+  <link type="text/css" rel="stylesheet" href="jsdocp/styles/index.css"></head>
+<body><div id="jsdocpNav" class="jsdocp-remove-me pkg-menu"
+  data-jsdocp-sm-position="bottom"
+  data-jsdocp-md-position="bottom"
+  data-jsdocp-lg-position="top"
+  data-jsdocp-sm-match-media="(max-width: 480px)"
+  data-jsdocp-md-match-media="(min-width: 481px) and (max-width: 839px)"
+  data-jsdocp-lg-match-media="(min-width: 840px)"
+  data-jsdocp-sm-auto-hide="true"
+  data-jsdocp-md-auto-hide="true"
+  data-jsdocp-lg-auto-hide="false">
+  <a href="index.html" id="jsdocpLogo"
+    title="sqler-mssql"
+    class="jsdocp-logo ">
+    <b class="pkg-logo">
+    
+      <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 29.26 29.26" y="0px" x="0px" version="1.1">
+<g>
+	<path
+   d="M 3.2714844 12.164062 C 3.0504844 12.547062 2.921875 12.944422 2.921875 13.357422 L 2.921875 16.919922 C 2.921875 19.670922 8.1639531 21.902344 14.626953 21.902344 C 21.093953 21.902344 26.337891 19.670922 26.337891 16.919922 L 26.337891 13.357422 C 26.337891 12.944422 26.207375 12.547062 25.984375 12.164062 C 25.170706 13.571962 22.944745 14.736211 19.992188 15.388672 C 19.990472 16.830619 19.968304 18.235467 19.923828 18.3125 C 19.831308 18.472746 14.767068 21.396484 14.582031 21.396484 C 14.396995 21.396484 9.3327528 18.472746 9.2402344 18.3125 C 9.1955638 18.235128 9.175362 16.819813 9.1738281 15.371094 C 6.2660228 14.715075 4.0769893 13.558477 3.2714844 12.164062 z "
+   />
+	<path
+   d="M14.627,23.31c-5.494,0-10.098-1.616-11.355-3.788c-0.221,0.381-0.35,0.779-0.35,1.191v3.564   c0,2.752,5.242,4.983,11.705,4.983c6.467,0,11.711-2.23,11.711-4.983v-3.564c0-0.412-0.131-0.81-0.354-1.19   C24.727,21.694,20.127,23.31,14.627,23.31z"
+   />
+	<path
+   d="M 3.2402344 5.0429688 C 3.0392344 5.4089688 2.921875 5.7905937 2.921875 6.1835938 L 2.921875 9.7441406 C 2.921875 11.658469 5.4621005 13.319742 9.1816406 14.154297 C 9.1905174 13.111949 9.205954 12.203907 9.2402344 12.144531 C 9.3327524 11.984284 14.396995 9.0605469 14.582031 9.0605469 C 14.767068 9.0605469 19.83131 11.984284 19.923828 12.144531 C 19.958305 12.204246 19.975593 13.121262 19.984375 14.171875 C 23.754868 13.344294 26.337891 11.674559 26.337891 9.7441406 L 26.337891 6.1835938 C 26.337891 5.7905938 26.218578 5.4099687 26.017578 5.0429688 C 25.787578 7.0589688 20.785953 8.671875 14.626953 8.671875 C 8.4709531 8.671875 3.4692344 7.0579688 3.2402344 5.0429688 z "
+   />
+	<path
+   d="M14.627,7.541c6.303,0,11.41-1.687,11.41-3.771c0-2.082-5.107-3.77-11.41-3.77   C8.328,0.001,3.219,1.689,3.219,3.771C3.219,5.854,8.328,7.541,14.627,7.541z"
+   />
+</g>
+</svg>
+
+    
+    </b>
+    <b id="jsdocpPkgName">sqler-mssql</b>
+    <b>|</b>
+    <hr/>
+  </a>
+  <a href="https://www.npmjs.com/package/sqler-mssql" id="jsdocpModule"
+    title="npm"
+    class="jsdocp-icon ">
+    
+    <svg version="1.1" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+      <g class="jsdocp-icon-svg-el pkg-icons" stroke="none" transform="translate(0,24) scale(0.1,-0.1)">
+        <path d="M 0,120 0,0 l 120,0 120,0 0,120 0,120 -120,0 -120,0 z m 200,0 c 0,-73 0.23256,-80 0.23256,-80 0,0 -27.97435,0.741211 -40.61273,0.707427 C 159.61983,67.551504 160,70.949947 160,100 c 0,53 -2,60 -20,60 -18,0 -20,-7 -20,-60 l 0,-60 -40,0 -40,0 0,80 0,80 80,0 80,0 z"/>
+      </g>
+    </svg>
+    
+  </a>
+  <a href="CHANGELOG.html" id="jsdocpChangelog" data-jsdocp-root-href="https://ugate.github.io/sqler-mssql/CHANGELOG.html"
+    title="Changelog"
+    class="jsdocp-icon ">
+    
+    <svg version="1.1" viewBox="0 0 64 64" height="64" width="64" xmlns="http://www.w3.org/2000/svg">
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="M 29.896194,0.97873581 C 13.435048,0.97873581 1.1072664e-7,15.139296 0,32.489368 0,49.839439 13.435048,64 29.896194,64 46.357339,64 59.792385,49.839438 59.792388,32.489368 a 4.2273908,4.4556761 0 1 0 -8.453721,0 c -10e-7,12.534501 -9.550175,22.600399 -21.442473,22.600399 -11.892299,0 -21.4424739,-10.065899 -21.4424739,-22.600399 0,-12.5345 9.5501749,-22.6003988 21.4424739,-22.6003988 a 4.2273908,4.4556761 0 1 0 0,-8.91023339 z" />
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="m 55.529412,24.680907 -8.470588,10.142582 16.941176,0 z"/>
+      <rect class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        transform="matrix(0.6882785,0.72544656,-0.6882785,0.72544656,0,0)" y="-38.592953" x="38.592953" height="39.814472" width="11.375563" />
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="m 23.705056,39.295314 8.338477,-1.11407 -7.281487,-7.674698 z"/>
+    </svg>
+    
+  </a>
+  <a href="https://github.com/ugate/sqler-mssql.git" id="jsdocpSourceCode"
+    title="Source Code"
+    class="jsdocp-icon ">
+    
+    <svg version="1.1" viewBox="0 0 10 16" width="24" height="24" xmlns="http://www.w3.org/2000/svg" id="jsdocpSourceIcon">
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="evenodd"
+        d="M8 1a1.993 1.993 0 0 0-1 3.72V6L5 8 3 6V4.72A1.993 1.993 0 0 0 2 1a1.993 1.993 0 0 0-1 3.72V6.5l3 3v1.78A1.993 1.993 0 0 0 5 15a1.993 1.993 0 0 0 1-3.72V9.5l3-3V4.72A1.993 1.993 0 0 0 8 1zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3 10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3-10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"></path>
+    </svg>
+    <!-- GitHub icon -->
+    <svg version="1.1" viewBox="0 0 16 16" height="24" width="24" xmlns="http://www.w3.org/2000/svg" class="jsdocp-remove-me" id="jsdocpGithubIcon">
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none"  fill-rule="evenodd"
+        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+    </svg>
+    
+  </a>
+  <!-- versions.json should point to the latest list -->
+  <a id="jsdocpVersionsIcon"
+    class="jsdocp-icon ">
+    
+    <svg version="1.1" viewBox="0 0 64 64" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="m 63.999999,25.315556 -24.108295,0 9.74288,-10.026667 C 39.927261,5.6888885 24.210644,5.3333335 14.503322,14.933333 c -9.7073234,9.635555 -9.7073234,25.173334 0,34.808888 9.707322,9.635556 25.423939,9.635556 35.131262,0 4.835883,-4.764443 7.253823,-10.346666 7.253823,-17.386666 l 7.111592,0 c 0,7.039999 -3.1291,16.177777 -9.387301,22.364444 -12.480844,12.373334 -32.748879,12.373334 -45.2297224,0 -12.445286,-12.337778 -12.55196,-32.39111 -0.071116,-44.7288881 12.4808434,-12.3377774 32.4999734,-12.3377774 44.9808174,0 L 64,-5e-7 64,25.315556 Z" />
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="m 33.775734,17.777777 0,15.111111 12.445286,7.395556 -2.560173,4.302222 -15.218806,-9.031112 0,-17.777777 5.333693,0 z" />
+    </svg>
+    
+  </a>
+  <select id="jsdocpVersions"
+    title="v1.0.0"
+    data-jsdocp-version-base="/sqler-mssql"
+    data-jsdocp-json-url="/sqler-mssql/versions.json"
+    data-jsdocp-type=""
+    data-jsdocp-from="1.0.0"
+    data-jsdocp-version="1.0.0">
+  </select>
+</div>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Tutorials</li><li class="nav-item"><a href="tutorial-1-manual.html">Getting Started</a></li><li class="nav-item"><a href="tutorial-2-usage.html">Usage</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module.exports.html">MSDialect</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#beginTransaction">beginTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#close">close</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#exec">exec</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#init">init</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#planner">planner</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Usage</h1>
+    
+
+    <section>
+
+<header>
+    
+</header>
+
+<article>
+    <h3>💡 <a href="https://www.microsoft.com/en-us/sql-server">SQL Server</a> Examples:</h3>
+<h4>Examples:<sub id="examples"></sub></h4>
+<p>The examples below use the following setup:</p>
+<p><strong><a href="https://ugate.github.io/sqler/Manager.html#~PrivateOptions">Private Options Configuration:</a></strong> (appended to the subsequent connection options)</p>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;univ&quot;: {
+    &quot;db&quot;: {
+      &quot;mssql&quot;: {
+        &quot;username&quot;:&quot;sa&quot;,
+        &quot;password&quot;: &quot;sqlS3rv35local&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong><a href="global.html#MSConnectionOptions">Connection Options Configuration:</a></strong></p>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;db&quot;: {
+    &quot;dialects&quot;: {
+      &quot;mssql&quot;: &quot;sqler-mssql&quot;
+    },
+    &quot;connections&quot;: [
+      {
+        &quot;id&quot;: &quot;mssql&quot;,
+        &quot;name&quot;: &quot;mssql&quot;,
+        &quot;dir&quot;: &quot;db/mssql&quot;,
+        &quot;service&quot;: &quot;MSSQL&quot;,
+        &quot;dialect&quot;: &quot;mssql&quot;,
+        &quot;pool&quot;: {},
+        &quot;driverOptions&quot;: {
+          &quot;connection&quot;: {
+            &quot;options&quot;: {
+              &quot;encrypt&quot;: true,
+              &quot;enableArithAbort&quot;: true
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+</code></pre>
+<p>Test code that illustrates how to use SQL Server with various examples</p>
+<pre class="prettyprint source lang-js"><code>// assuming &quot;conf&quot; contains combined &quot;univ&quot; and &quot;db&quot; objects from above
+
+// create/initialize manager
+const manager = new Manager(conf);
+await manager.init();
+
+// see subsequent examples for different examples
+const result = await runExample(manager, 'mssql');
+
+console.log('Result:', result);
+
+// after we're done using the manager we should close it
+process.on('SIGINT', async function sigintDB() {
+  await manager.close();
+  console.log('Manager has been closed');
+});
+</code></pre>
+<p><strong>Create Schema:</strong></p>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/setup/create.database.sql
+CREATE SCHEMA sqlermssql
+</code></pre>
+<pre class="prettyprint source lang-js"><code>'use strict';
+
+// export just to illustrate module usage
+module.exports = async function runExample(manager, connName) {
+
+  // create the database and/or schema
+  return manager.db[connName].setup.create.database();
+};
+</code></pre>
+<p><strong>Create Table(s):</strong></p>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/setup/create.table1.sql
+CREATE TABLE sqlermssql.TEST (&quot;ID&quot; integer not null primary key, &quot;NAME&quot; varchar(255), &quot;CREATED_AT&quot; datetime2, &quot;UPDATED_AT&quot; datetime2)
+</code></pre>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/setup/create.table2.sql
+CREATE TABLE sqlermssql.TEST2 (&quot;ID&quot; integer not null primary key, &quot;NAME&quot; varchar(255), &quot;REPORT&quot; varbinary(max), &quot;CREATED_AT&quot; datetime2, &quot;UPDATED_AT&quot; datetime2)
+</code></pre>
+<pre class="prettyprint source lang-js"><code>'use strict';
+
+// export just to illustrate module usage
+module.exports = async function runExample(manager, connName) {
+
+  // create the tables (in parallel)
+  return Promise.all([
+    manager.db[connName].setup.create.table1(),
+    manager.db[connName].setup.create.table2()
+  ]);
+};
+</code></pre>
+<p><strong>Create Rows:</strong></p>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/create.table1.rows.sql
+INSERT INTO sqlermssql.TEST (ID, NAME, CREATED_AT, UPDATED_AT)
+VALUES (:id, :name, :created, :updated)
+</code></pre>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/create.table2.rows.sql
+INSERT INTO sqlermssql.TEST2 (ID, NAME, REPORT, CREATED_AT, UPDATED_AT)
+VALUES (:id2, :name2, :report2, :created2, :updated2)
+</code></pre>
+<pre class="prettyprint source lang-js"><code>'use strict';
+
+const Fs = require('fs');
+
+// export just to illustrate module usage
+module.exports = async function runExample(manager, connName) {
+
+  const date = new Date(), rtn = new Array(2);
+  // The driver module currently doesn't support Fs.ReadStream/Fs.createReadStream()
+  const report = await Fs.promises.readFile('./test/files/audit-report.png');
+
+  // Insert rows (implicit transactions)
+  rtn[0] = await manager.db[connName].create.table1.rows({
+    binds: {
+      id: 1, name: 'TABLE: 1, ROW: 1', created: date, updated: date
+    }
+  });
+  rtn[1] = await manager.db[connName].create.table2.rows({
+    binds: {
+      id2: 1, name2: 'TABLE: 2, ROW: 1', report2: report, created2: date, updated2: date
+    }
+  });
+
+  return rtn;
+};
+</code></pre>
+<p><strong>Read Rows:</strong></p>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/read.table.rows.sql
+SELECT TST.ID AS &quot;id&quot;, TST.NAME AS &quot;name&quot;, NULL AS &quot;report&quot;,
+TST.CREATED_AT AS &quot;created&quot;, TST.UPDATED_AT AS &quot;updated&quot;
+FROM sqlermssql.TEST TST
+WHERE UPPER(TST.NAME) LIKE CONCAT(CONCAT('%', UPPER(:name)), '%') 
+UNION
+SELECT TST2.ID AS &quot;id&quot;, TST2.NAME AS &quot;name&quot;, /*CONVERT(varchar(max), TST2.REPORT, 2)*/TST2.REPORT AS &quot;report&quot;,
+TST2.CREATED_AT AS &quot;created&quot;, TST2.UPDATED_AT AS &quot;updated&quot;
+FROM sqlermssql.TEST2 TST2
+WHERE UPPER(TST2.NAME) LIKE CONCAT(CONCAT('%', UPPER(:name)), '%')
+</code></pre>
+<pre class="prettyprint source lang-js"><code>'use strict';
+
+const Os = require('os');
+const Fs = require('fs');
+
+// export just to illustrate module usage
+module.exports = async function runExample(manager, connName) {
+
+  // read from multiple tables
+  const rslt = await manager.db[connName].read.table.rows({
+    binds: { name: 'table' },
+    driverOptions: {
+      // output bind types are optional
+      outputBindTypes: {
+        id: '${Int}'
+      }
+    }
+  });
+
+  // write binary report buffer to file?
+  const writeProms = [];
+  for (let row of rslt.rows) {
+    if (row.report) {
+      // store the path to the report (illustrative purposes only)
+      row.reportPath = `${Os.tmpdir()}/sqler-${connName}-read-${row.id}.png`;
+      writeProms.push(Fs.promises.writeFile(row.reportPath, row.report));
+    }
+  }
+  if (writeProms.length) {
+    await Promise.all(writeProms);
+  }
+
+  return rslt;
+};
+</code></pre>
+<p><strong>Update Rows:</strong></p>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/update.table1.rows.sql
+UPDATE sqlermssql.TEST
+SET NAME = :name, UPDATED_AT = :updated
+WHERE ID = :id
+
+</code></pre>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/update.table2.rows.sql
+UPDATE sqlermssql.TEST2
+SET NAME = :name2, UPDATED_AT = :updated2
+WHERE ID = :id2
+</code></pre>
+<pre class="prettyprint source lang-js"><code>'use strict';
+
+// export just to illustrate module usage
+module.exports = async function runExample(manager, connName) {
+
+  const date = new Date();
+
+  // binds
+  const binds1 = {
+    id: 1, name: 'TABLE: 1, ROW: 1 (UPDATE)', updated: date
+  };
+  const binds2 = {
+    id2: 1, name2: 'TABLE: 2, ROW: 1 (UPDATE)', updated2: date
+  };
+  // mssql bind types (values interpolated from the mssql module)
+  const inputBindTypes1 = {
+    id: &quot;${Int}&quot;,
+    name: &quot;${VarChar}&quot;,
+    updated: &quot;${DateTime}&quot;
+  };
+  const rtn = {};
+
+  //-------------------------------------------------------
+  // There are two different ways to perform a transaction
+  // 1. Explicit (suitable for multiple executions in 1 tx)
+  // 2. Implicit (suitable for a single execution in 1 tx)
+
+  // Using an explicit transaction:
+  await explicitTransactionUpdate(manager, connName, binds1, binds2, rtn);
+
+  // Using a prepared statement:
+  await preparedStatementUpdate(manager, connName, binds1, inputBindTypes1, rtn);
+
+  // Using a prepared statement within a transaction
+  await preparedStatementTransactionUpdate(manager, connName, binds1, inputBindTypes1, rtn);
+
+  return rtn;
+};
+
+async function explicitTransactionUpdate(manager, connName, binds1, binds2, rtn) {
+  rtn.txRslts = new Array(2); // don't exceed connection pool count
+  try {
+    // start a transaction
+    const txId = await manager.db[connName].beginTransaction({
+      // illustrate override of isolation level
+      // (optional, interpolated from the mssql module)
+      isolationLevel: &quot;${SERIALIZABLE}&quot;
+    });
+
+    // Example execution in parallel (same transacion)
+    // NOTE: Internally, transactions are ran in series since that is the
+    // contract definition, but for API compatibility they can be ran in
+    // parallel from a Manager perspective
+    rtn.txRslts[0] = manager.db[connName].update.table1.rows({
+      name: 'TX 1', // name is optional
+      autoCommit: false,
+      transactionId: txId, // ensure execution takes place within transaction
+      binds: binds1
+    });
+    rtn.txRslts[1] = manager.db[connName].update.table2.rows({
+      name: 'TX 2', // name is optional
+      autoCommit: false,
+      transactionId: txId, // ensure execution takes place within transaction
+      binds: binds2
+    });
+    // could have also ran is series by awaiting when SQL function is called
+    rtn.txRslts[0] = await rtn.txRslts[0];
+    rtn.txRslts[1] = await rtn.txRslts[1];
+
+    // could commit using either one of the returned results
+    await rtn.txRslts[0].commit();
+  } catch (err) {
+    if (rtn.txRslts[0] && rtn.txRslts[0].rollback) {
+      // could rollback using either one of the returned results
+      await rtn.txRslts[0].rollback();
+    }
+    throw err;
+  }
+}
+
+async function preparedStatementUpdate(manager, connName, binds, inputBindTypes, rtn) {
+  rtn.psRslts = new Array(2); // don't exceed connection pool count
+  try {
+    for (let i = 0; i &lt; rtn.psRslts.length; i++) {
+      // update with expanded name
+      binds.name += ` | From Prepared Statement iteration #${i}`;
+      // Using an implicit transcation (autoCommit defaults to true):
+      rtn.psRslts[i] = manager.db[connName].update.table1.rows({
+        name: `PS ${i}`, // name is optional
+        // flag the SQL execution as a prepared statement
+        // this will cause the statement to be prepared
+        // and a dedicated connection to be allocated from
+        // the pool just before the first SQL executes
+        prepareStatement: true,
+        driverOptions: {
+          // on the first prepared statement call the
+          // statement will be registered and a
+          // dedicated connection will be allocated
+          inputBindTypes
+        },
+        // include the bind parameters
+        binds
+      });
+    }
+    // wait for parallel executions to complete
+    for (let i = 0; i &lt; rtn.psRslts.length; i++) {
+      rtn.psRslts[i] = await rtn.psRslts[i];
+    }
+  } finally {
+    // could call unprepare using any of the returned execution results
+    if (rtn.psRslts[0] && rtn.psRslts[0].unprepare) {
+      // since prepareStatement = true, we need to close the statement
+      // and release the statement connection back to the pool
+      await rtn.psRslts[0].unprepare();
+    }
+  }
+}
+
+async function preparedStatementTransactionUpdate(manager, connName, binds, inputBindTypes, rtn) {
+  rtn.psTxRslts = new Array(2); // don't exceed connection pool count
+  try {
+    // start a transaction
+    const txId = await manager.db[connName].beginTransaction();
+
+    for (let i = 0; i &lt; rtn.psTxRslts.length; i++) {
+      // update with expanded name
+      binds.name += ` | From Prepared Statement with txId &quot;${txId}&quot; iteration #${i}`;
+      rtn.psTxRslts[i] = manager.db[connName].update.table1.rows({
+        name: `TX/PS ${i}`, // name is optional
+        autoCommit: false,
+        transactionId: txId, // ensure execution takes place within transaction
+        prepareStatement: true, // ensure a prepared statement is used
+        driverOptions: {
+          inputBindTypes, // required mssql bind types for prepared statements
+          outputBindTypes: inputBindTypes // optional
+        },
+        binds
+      });
+    }
+    // wait for parallel executions to complete
+    for (let i = 0; i &lt; rtn.psTxRslts.length; i++) {
+      rtn.psTxRslts[i] = await rtn.psTxRslts[i];
+    }
+
+    // unprepare will be called when calling commit
+    // (alt, could have called unprepare before commit)
+    await rtn.psTxRslts[0].commit();
+  } catch (err) {
+    if (rtn.psTxRslts[0] && rtn.psTxRslts[0].rollback) {
+      // unprepare will be called when calling rollback
+      // (alt, could have called unprepare before rollback)
+      await rtn.psTxRslts[0].rollback();
+    }
+    throw err;
+  }
+}
+</code></pre>
+<p><strong>Delete Rows:</strong></p>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/delete.table1.rows.sql
+DELETE FROM sqlermssql.TEST
+WHERE ID = :id
+</code></pre>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/delete.table2.rows.sql
+DELETE FROM sqlermssql.TEST2
+WHERE ID = :id2
+</code></pre>
+<pre class="prettyprint source lang-js"><code>'use strict';
+
+// export just to illustrate module usage
+module.exports = async function runExample(manager, connName) {
+
+  const rtn = new Array(2);
+
+  // delete rows (implicit transactions)
+  rtn[0] = await manager.db[connName].delete.table1.rows({
+    binds: { id: 1 }
+  });
+  rtn[1] = await manager.db[connName].delete.table2.rows({
+    binds: { id2: 1 }
+  });
+
+  return rtn;
+};
+</code></pre>
+<p><strong>Delete Tables:</strong></p>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/setup/delete.table1.sql
+DROP TABLE sqlermssql.TEST
+</code></pre>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/setup/delete.table2.sql
+DROP TABLE sqlermssql.TEST2
+</code></pre>
+<pre class="prettyprint source lang-js"><code>'use strict';
+
+// export just to illustrate module usage
+module.exports = async function runExample(manager, connName) {
+
+  // delete the tables (in parallel)
+  return Promise.all([
+    manager.db[connName].setup.delete.table1(),
+    manager.db[connName].setup.delete.table2()
+  ]);
+};
+</code></pre>
+<p><strong>Delete Schema:</strong></p>
+<pre class="prettyprint source lang-sql"><code>-- db/mssql/setup/delete.database.sql
+DROP SCHEMA sqlermssql
+</code></pre>
+<pre class="prettyprint source lang-js"><code>'use strict';
+
+// export just to illustrate module usage
+module.exports = async function runExample(manager, connName) {
+
+  // delete the database and/or schema
+  return manager.db[connName].setup.delete.database();
+};
+</code></pre>
+</article>
+
+</section>
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<div id="jsdocpChangelogContent" data-title="CHANGELOG v1.0.0">
+  <svg class="jsdocp-close" id="jsdocpChangelogClose" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+    <path d="M0 0h24v24H0z" fill="none"/>
+  </svg>
+  <h2><a href="https://ugate.github.io/sqler-mssql/tree/v1.0.0">1.0.0</a> (2020-05-08)</h2>
+<p><a href="https://ugate.github.io/sqler-mssql/compare/v1.0.0...v1.0.0">Full Changelog</a></p>
+<p><strong>Features:</strong></p>
+<ul>
+<li><a href="https://ugate.github.io/sqler-mssql/commit/5855a129c2827cf85a7323da3ea3abd354226a51">[FEATURE]: Prepared statements within transactions</a></li>
+<li><a href="https://ugate.github.io/sqler-mssql/commit/67824b422d69297a9dfa219fa2aec16c6a2cc8b4">[FEATURE]: Initial commit</a></li>
+</ul>
+</div>
+
+
+
+<script src="jsdocp/scripts/index.js"></script></body>
+</html>

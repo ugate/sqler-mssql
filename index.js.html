@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>index.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+  <!-- https://realfavicongenerator.net/ -->
+  
+    <link
+      
+      rel="apple-touch-icon" 
+      
+      sizes="180x180" 
+      
+      href="apple-touch-icon.png" 
+      
+    >
+  
+    <link
+      
+      rel="icon" 
+      
+      type="image/png" 
+      
+      sizes="32x32" 
+      
+      href="favicon-32x32.png" 
+      
+    >
+  
+    <link
+      
+      rel="icon" 
+      
+      type="image/png" 
+      
+      sizes="16x16" 
+      
+      href="favicon-16x16.png" 
+      
+    >
+  
+    <link
+      
+      rel="manifest" 
+      
+      href="site.webmanifest" 
+      
+    >
+  
+    <link
+      
+      rel="mask-icon" 
+      
+      type="image/png" 
+      
+      sizes="16x16" 
+      
+      href="safari-pinned-tab.svg" 
+      
+      color="#ffab40" 
+      
+    >
+  
+    <link
+      
+      type="text/css" 
+      
+      rel="stylesheet" 
+      
+      href="pkg-styles/pkg-style.css" 
+      
+    >
+  
+
+  
+    <meta
+      
+      name="msapplication-TileColor" 
+      
+      content="#ffab40" 
+      
+    >
+  
+    <meta
+      
+      name="theme-color" 
+      
+      content="#bdbdbd" 
+      
+    >
+  
+    <meta
+      
+      name="viewport" 
+      
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" 
+      
+    >
+  
+
+  <link type="text/css" rel="stylesheet" href="jsdocp/styles/index.css"></head>
+<body><div id="jsdocpNav" class="jsdocp-remove-me pkg-menu"
+  data-jsdocp-sm-position="bottom"
+  data-jsdocp-md-position="bottom"
+  data-jsdocp-lg-position="top"
+  data-jsdocp-sm-match-media="(max-width: 480px)"
+  data-jsdocp-md-match-media="(min-width: 481px) and (max-width: 839px)"
+  data-jsdocp-lg-match-media="(min-width: 840px)"
+  data-jsdocp-sm-auto-hide="true"
+  data-jsdocp-md-auto-hide="true"
+  data-jsdocp-lg-auto-hide="false">
+  <a href="index.html" id="jsdocpLogo"
+    title="sqler-mssql"
+    class="jsdocp-logo ">
+    <b class="pkg-logo">
+    
+      <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 29.26 29.26" y="0px" x="0px" version="1.1">
+<g>
+	<path
+   d="M 3.2714844 12.164062 C 3.0504844 12.547062 2.921875 12.944422 2.921875 13.357422 L 2.921875 16.919922 C 2.921875 19.670922 8.1639531 21.902344 14.626953 21.902344 C 21.093953 21.902344 26.337891 19.670922 26.337891 16.919922 L 26.337891 13.357422 C 26.337891 12.944422 26.207375 12.547062 25.984375 12.164062 C 25.170706 13.571962 22.944745 14.736211 19.992188 15.388672 C 19.990472 16.830619 19.968304 18.235467 19.923828 18.3125 C 19.831308 18.472746 14.767068 21.396484 14.582031 21.396484 C 14.396995 21.396484 9.3327528 18.472746 9.2402344 18.3125 C 9.1955638 18.235128 9.175362 16.819813 9.1738281 15.371094 C 6.2660228 14.715075 4.0769893 13.558477 3.2714844 12.164062 z "
+   />
+	<path
+   d="M14.627,23.31c-5.494,0-10.098-1.616-11.355-3.788c-0.221,0.381-0.35,0.779-0.35,1.191v3.564   c0,2.752,5.242,4.983,11.705,4.983c6.467,0,11.711-2.23,11.711-4.983v-3.564c0-0.412-0.131-0.81-0.354-1.19   C24.727,21.694,20.127,23.31,14.627,23.31z"
+   />
+	<path
+   d="M 3.2402344 5.0429688 C 3.0392344 5.4089688 2.921875 5.7905937 2.921875 6.1835938 L 2.921875 9.7441406 C 2.921875 11.658469 5.4621005 13.319742 9.1816406 14.154297 C 9.1905174 13.111949 9.205954 12.203907 9.2402344 12.144531 C 9.3327524 11.984284 14.396995 9.0605469 14.582031 9.0605469 C 14.767068 9.0605469 19.83131 11.984284 19.923828 12.144531 C 19.958305 12.204246 19.975593 13.121262 19.984375 14.171875 C 23.754868 13.344294 26.337891 11.674559 26.337891 9.7441406 L 26.337891 6.1835938 C 26.337891 5.7905938 26.218578 5.4099687 26.017578 5.0429688 C 25.787578 7.0589688 20.785953 8.671875 14.626953 8.671875 C 8.4709531 8.671875 3.4692344 7.0579688 3.2402344 5.0429688 z "
+   />
+	<path
+   d="M14.627,7.541c6.303,0,11.41-1.687,11.41-3.771c0-2.082-5.107-3.77-11.41-3.77   C8.328,0.001,3.219,1.689,3.219,3.771C3.219,5.854,8.328,7.541,14.627,7.541z"
+   />
+</g>
+</svg>
+
+    
+    </b>
+    <b id="jsdocpPkgName">sqler-mssql</b>
+    <b>|</b>
+    <hr/>
+  </a>
+  <a href="https://www.npmjs.com/package/sqler-mssql" id="jsdocpModule"
+    title="npm"
+    class="jsdocp-icon ">
+    
+    <svg version="1.1" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+      <g class="jsdocp-icon-svg-el pkg-icons" stroke="none" transform="translate(0,24) scale(0.1,-0.1)">
+        <path d="M 0,120 0,0 l 120,0 120,0 0,120 0,120 -120,0 -120,0 z m 200,0 c 0,-73 0.23256,-80 0.23256,-80 0,0 -27.97435,0.741211 -40.61273,0.707427 C 159.61983,67.551504 160,70.949947 160,100 c 0,53 -2,60 -20,60 -18,0 -20,-7 -20,-60 l 0,-60 -40,0 -40,0 0,80 0,80 80,0 80,0 z"/>
+      </g>
+    </svg>
+    
+  </a>
+  <a href="CHANGELOG.html" id="jsdocpChangelog" data-jsdocp-root-href="https://ugate.github.io/sqler-mssql/CHANGELOG.html"
+    title="Changelog"
+    class="jsdocp-icon ">
+    
+    <svg version="1.1" viewBox="0 0 64 64" height="64" width="64" xmlns="http://www.w3.org/2000/svg">
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="M 29.896194,0.97873581 C 13.435048,0.97873581 1.1072664e-7,15.139296 0,32.489368 0,49.839439 13.435048,64 29.896194,64 46.357339,64 59.792385,49.839438 59.792388,32.489368 a 4.2273908,4.4556761 0 1 0 -8.453721,0 c -10e-7,12.534501 -9.550175,22.600399 -21.442473,22.600399 -11.892299,0 -21.4424739,-10.065899 -21.4424739,-22.600399 0,-12.5345 9.5501749,-22.6003988 21.4424739,-22.6003988 a 4.2273908,4.4556761 0 1 0 0,-8.91023339 z" />
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="m 55.529412,24.680907 -8.470588,10.142582 16.941176,0 z"/>
+      <rect class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        transform="matrix(0.6882785,0.72544656,-0.6882785,0.72544656,0,0)" y="-38.592953" x="38.592953" height="39.814472" width="11.375563" />
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="m 23.705056,39.295314 8.338477,-1.11407 -7.281487,-7.674698 z"/>
+    </svg>
+    
+  </a>
+  <a href="https://github.com/ugate/sqler-mssql.git" id="jsdocpSourceCode"
+    title="Source Code"
+    class="jsdocp-icon ">
+    
+    <svg version="1.1" viewBox="0 0 10 16" width="24" height="24" xmlns="http://www.w3.org/2000/svg" id="jsdocpSourceIcon">
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="evenodd"
+        d="M8 1a1.993 1.993 0 0 0-1 3.72V6L5 8 3 6V4.72A1.993 1.993 0 0 0 2 1a1.993 1.993 0 0 0-1 3.72V6.5l3 3v1.78A1.993 1.993 0 0 0 5 15a1.993 1.993 0 0 0 1-3.72V9.5l3-3V4.72A1.993 1.993 0 0 0 8 1zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3 10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3-10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"></path>
+    </svg>
+    <!-- GitHub icon -->
+    <svg version="1.1" viewBox="0 0 16 16" height="24" width="24" xmlns="http://www.w3.org/2000/svg" class="jsdocp-remove-me" id="jsdocpGithubIcon">
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none"  fill-rule="evenodd"
+        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+    </svg>
+    
+  </a>
+  <!-- versions.json should point to the latest list -->
+  <a id="jsdocpVersionsIcon"
+    class="jsdocp-icon ">
+    
+    <svg version="1.1" viewBox="0 0 64 64" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="m 63.999999,25.315556 -24.108295,0 9.74288,-10.026667 C 39.927261,5.6888885 24.210644,5.3333335 14.503322,14.933333 c -9.7073234,9.635555 -9.7073234,25.173334 0,34.808888 9.707322,9.635556 25.423939,9.635556 35.131262,0 4.835883,-4.764443 7.253823,-10.346666 7.253823,-17.386666 l 7.111592,0 c 0,7.039999 -3.1291,16.177777 -9.387301,22.364444 -12.480844,12.373334 -32.748879,12.373334 -45.2297224,0 -12.445286,-12.337778 -12.55196,-32.39111 -0.071116,-44.7288881 12.4808434,-12.3377774 32.4999734,-12.3377774 44.9808174,0 L 64,-5e-7 64,25.315556 Z" />
+      <path class="jsdocp-icon-svg-el pkg-icons" stroke="none" fill-rule="nonzero"
+        d="m 33.775734,17.777777 0,15.111111 12.445286,7.395556 -2.560173,4.302222 -15.218806,-9.031112 0,-17.777777 5.333693,0 z" />
+    </svg>
+    
+  </a>
+  <select id="jsdocpVersions"
+    title="v1.0.0"
+    data-jsdocp-version-base="/sqler-mssql"
+    data-jsdocp-json-url="/sqler-mssql/versions.json"
+    data-jsdocp-type=""
+    data-jsdocp-from="1.0.0"
+    data-jsdocp-version="1.0.0">
+  </select>
+</div>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Tutorials</li><li class="nav-item"><a href="tutorial-1-manual.html">Getting Started</a></li><li class="nav-item"><a href="tutorial-2-usage.html">Usage</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module.exports.html">MSDialect</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#beginTransaction">beginTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#close">close</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#exec">exec</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#init">init</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module.exports.html#planner">planner</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">index.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+
+/**
+ * MSSQL specific extension of the {@link Manager~ConnectionOptions} from the [`sqler`](https://ugate.github.io/sqler/) module.
+ * @typedef {Manager~ConnectionOptions} MSConnectionOptions
+ * @property {Object} driverOptions The `mssql` module specific options. __Both `client` and `pool` will be merged when generating the connection pool.__
+ * @property {Object} [driverOptions.connection] An object that will contain properties/values that will be used to construct the MSSQL connections
+ * (e.g. `{ database: 'mydb', requestTimeout: 10000 }`). See the `mssql` module documentation for a full listing of available connection options.
+ * When a property value is a string surrounded by `${}`, it will be assumed to be a property that resides on either the {@link Manager~PrivateOptions}
+ * passed into the {@link Manager} constructor or a property on the {@link MSConnectionOptions} itself (in that order of precedence). For example, 
+ * `connOpts.host = '127.0.0.1'` and `driverOptions.connection.host = '${host}'` would be interpolated into `driverOptions.connection.host = '127.0.0.1'`.
+ * In contrast to `privOpts.username = 'someUsername' and `driverOptions.connection.user = '${username}'` would be interpolated into
+ * `driverOptions.connection.user = 'someUsername'`. Also, any other interpolated values will be assumed to be a _constant_ property that resides on the
+ * `mssql` module and will be interpolated accordingly.
+ * For example `driverOptions.connection.pool.someProp = '${SOME_MSSQL_CONSTANT}'` will be interpolated as `pool.someProp = mssql.SOME_MSSQL_CONSTANT`.
+ * __Using any of the generic `pool.someOption` will override the `conf` options set on `driverOptions.connection.pool`__ (e.g. `pool.max = 10` would override 
+ * `driverOptions.connection.pool.max = 20`).
+ */
+
+/**
+ * MSSQL specific extension of the {@link Manager~ExecOptions} from the [`sqler`](https://ugate.github.io/sqler/) module. When a property of `binds`
+ * contains an object it will be _interpolated_ for property values on the `mssql` module.
+ * For example, `binds.name = '${SOME_MSSQL_CONSTANT}'` will be interpolated as `binds.name = mssql.SOME_MSSQL_CONSTANT`.
+ * @typedef {Manager~ExecOptions} MSExecOptions
+ * @property {Object} [driverOptions] The `mssql` module specific options pertaining executions
+ * @property {Object} [driverOptions.inputBindTypes] An object that contains properties that match the bind parameter names. Each property should contain a value
+ * that corresponds to a `mssql` module specific bind type. Each bind type will result in a call to either `mssql.Request.input`, `mssql.PreparedStatement.input`.
+ * __When using `preparedStatement = true`, input bind types are required.__
+ * When a property value is a string surrounded by `${}`, it will be assumed to be a property that resides on the `mssql` module itself. For example,
+ * `driverOptions.inputBindTypes.name = '${VarChar}'` would be interpolated into `driverOptions.inputBindTypes.name = mssql.VarChar`.
+ *  @property {Object} [driverOptions.outputBindTypes] An object that contains properties that match the bind parameter names. Each property should contain a value
+ * that corresponds to a `mssql` module specific bind type. Each bind type will result in a call to either `mssql.Request.output`, `mssql.PreparedStatement.output`.
+ * When a property value is a string surrounded by `${}`, it will be assumed to be a property that resides on the `mssql` module itself. For example,
+ * `driverOptions.outputBindTypes.name = '${VarChar}'` would be interpolated into `driverOptions.outputBindTypes.name = mssql.VarChar`.
+ */
+
+/**
+ * @typedef {Manager~Transactionoptions} MSTransactionOptions
+ * @property {Object} [driverOptions] The `mssql` module specific options pertaining to transations
+ * @property {String} [driverOptions.isolationLevel] Controls the locking and row versioning behavior of MSSQL statements issued by a connection.
+ * When a property value is a string surrounded by `${}`, it will be assumed to be a _constant_ property that resides on the `mssql` module within
+ * `mssql.ISOLATION_LEVEL` and will be interpolated accordingly.
+ * For example `driverOptions.isolationLevel = ${SERIALIZABLE}` will be interpolated to `driverOptions.isolationLevel = mssql.ISOLATION_LEVEL.SERIALIZABLE`.
+ */
+
+/**
+ * MSSQL {@link Dialect} implementation for [`sqler`](https://ugate.github.io/sqler/).
+ * Typically, an application will not have to directly interact with the dialect. All API interactions will take place using the {@link Manager}
+ * interface that resides within the [`sqler`](https://ugate.github.io/sqler/) module.
+ */
+module.exports = class MSDialect {
+
+  /**
+   * Constructor
+   * @constructs MSDialect
+   * @param {Manager~PrivateOptions} priv The private configuration options
+   * @param {MSConnectionOptions} connConf The individual SQL __connection__ configuration for the given dialect that was passed into the originating {@link Manager}
+   * @param {Manager~Track} track Container for sharing data between {@link Dialect} instances.
+   * @param {Function} [errorLogger] A function that takes one or more arguments and logs the results as an error (similar to `console.error`)
+   * @param {Function} [logger] A function that takes one or more arguments and logs the results (similar to `console.log`)
+   * @param {Boolean} [debug] A flag that indicates the dialect should be run in debug mode (if supported)
+   */
+  constructor(priv, connConf, track, errorLogger, logger, debug) {
+    const dopts = connConf.driverOptions || {};
+    const dlt = internal(this);
+    dlt.at.track = track;
+    dlt.at.driver = require('mssql');
+    dlt.at.txs = new Map();
+    dlt.at.stmts = new Map();
+    dlt.at.pends = [];
+    dlt.at.iop = new Map();
+    dlt.at.opts = {
+      autoCommit: true, // default autoCommit = true to conform to sqler
+      id: `sqlerMSSQLGen${Math.floor(Math.random() * 10000)}`,
+      connection: dopts.connection ? dlt.at.track.interpolate({}, dopts.connection, dlt.at.driver) : {}
+    };
+    // sqler compatible state
+    dlt.at.state = {
+      pending: 0
+    };
+
+    dlt.at.errorLogger = errorLogger;
+    dlt.at.logger = logger;
+    dlt.at.debug = debug;
+
+    // connection
+    if (priv.host) dlt.at.opts.connection.server = priv.host;
+    if (!dlt.at.opts.connection.server) {
+      // default for compatibility
+      dlt.at.opts.connection.server = 'localhost';
+    }
+    if (priv.hasOwnProperty('port')) dlt.at.opts.connection.port = priv.port;
+    dlt.at.opts.connection.user = priv.username;
+    dlt.at.opts.connection.password = priv.password;
+
+    // connection pool
+    if (!dlt.at.opts.connection.pool) dlt.at.opts.connection.pool = {};
+    if (connConf.pool) {
+      if (connConf.pool.hasOwnProperty('min')) dlt.at.opts.connection.pool.min = connConf.pool.min;
+      if (connConf.pool.hasOwnProperty('max')) dlt.at.opts.connection.pool.max = connConf.pool.max;
+      if (connConf.pool.hasOwnProperty('idle')) dlt.at.opts.connection.pool.idleTimeoutMillis = connConf.pool.idle;
+      // if (connConf.pool.hasOwnProperty('increment')) dlt.at.opts.connection.pool.incrementSize = connConf.pool.increment; // not supported
+      if (connConf.pool.hasOwnProperty('timeout')) dlt.at.opts.connection.pool.connectionTimeout = connConf.pool.timeout;
+    }
+  }
+
+  /**
+   * Initializes {@link MSDialect} by creating the connection pool
+   * @param {Dialect~DialectInitOptions} opts The options described by the `sqler` module
+   * @returns {Object} The MSSQL connection pool
+   */
+  async init(opts) {
+    const dlt = internal(this), numSql = opts.numOfPreparedFuncs;
+    try {
+      dlt.at.pool = new dlt.at.driver.ConnectionPool(dlt.at.opts.connection);
+      if (dlt.at.logger) {
+        dlt.at.logger(`sqler-mssql: Connection pool "${dlt.at.opts.id}" created with (${numSql} SQL files) ` +
+          `max=${dlt.at.opts.connection.pool.max} min=${dlt.at.opts.connection.pool.min} ` + 
+          `idleTimeoutMillis=${dlt.at.opts.connection.pool.idleTimeoutMillis} ` +
+          `connectionTimeout=${dlt.at.opts.connection.pool.connectionTimeout}`);
+      }
+      await dlt.at.pool.connect();
+      return dlt.at.pool;
+    } catch (err) {
+      const msg = `sqler-mssql: connection pool "${dlt.at.opts.id}" could not be created`;
+      if (dlt.at.errorLogger) {
+        dlt.at.errorLogger(`${msg} (passwords are omitted from error) ${JSON.stringify(err, null, ' ')}`);
+      }
+      const pconf = Object.assign({}, dlt.at.opts.connection);
+      delete pconf.password;
+      err.message = `${err.message}\n${msg} for ${JSON.stringify(pconf, null, ' ')}`;
+      err.sqlerMSSQL = pconf;
+      throw err;
+    }
+  }
+
+  /**
+   * Begins a transaction by opening a connection from the pool
+   * @param {String} txId The transaction ID that will be started
+   * @param {MSTransactionOptions} opts The transaction options
+   */
+  async beginTransaction(txId, opts) {
+    const dlt = internal(this);
+    if (dlt.at.txs.has(txId)) return;
+    const topts = dlt.at.track.interpolate({}, opts, dlt.at.driver.ISOLATION_LEVEL);
+    if (dlt.at.logger) {
+      dlt.at.logger(`sqler-mssql: Beginning transaction "${txId}" on connection pool "${dlt.at.opts.id}" (isolation level: ${
+        topts.isolationLevel || 'default'
+      })`);
+    }
+    return dlt.this.planner({
+      transactionId: txId,
+      isolationLevel: topts.isolationLevel
+    });
+  }
+
+  /**
+   * Executes a SQL statement
+   * @param {String} sql the SQL to execute
+   * @param {MSExecOptions} opts The execution options
+   * @param {String[]} frags The frament keys within the SQL that will be retained
+   * @param {Manager~ExecMeta} meta The SQL execution metadata
+   * @param {(Manager~ExecErrorOptions | Boolean)} [errorOpts] The error options to use
+   * @returns {Dialect~ExecResults} The execution results
+   */
+  async exec(sql, opts, frags, meta, errorOpts) {
+    const dlt = internal(this);
+    let plan, bndp = {}, bnds = [], inputBindTypes, outputBindTypes, esql = sql, rslts;
+    try {
+      // interpolate and remove unused binds since
+      // MSSQL only accepts the exact number of bind parameters (also, cuts down on payload bloat)
+      bndp = dlt.at.track.interpolate(bndp, opts.binds, dlt.at.driver, props => sql.includes(`:${props[0]}`));
+      inputBindTypes = opts.driverOptions &amp;&amp; opts.driverOptions.inputBindTypes ?
+        dlt.at.track.interpolate({}, opts.driverOptions.inputBindTypes, dlt.at.driver)
+        : null;
+      outputBindTypes = opts.driverOptions &amp;&amp; opts.driverOptions.outputBindTypes ?
+        dlt.at.track.interpolate({}, opts.driverOptions.outputBindTypes, dlt.at.driver)
+        : null;
+      // input/output types are globally set for a statement rather than on each prepared statement instance
+      // so, they have to be kept track of on a SQL/meta path basis to prevent dupication errors
+      let iop = (inputBindTypes || outputBindTypes) &amp;&amp; dlt.at.iop.get(meta.path);
+      if ((inputBindTypes || outputBindTypes) &amp;&amp; !iop) {
+        dlt.at.iop.set(meta.path, iop = {
+          inputs: new Map(),
+          outputs: new Map()
+        });
+      }
+
+      const rtn = {};
+
+      plan = await dlt.this.planner(opts, meta);
+      const bnames = plan.stmt ? null : [];const ddd = Math.random();
+
+      // mssql expects the format: @paramName
+      esql = dlt.at.track.positionalBinds(esql, bndp, bnds, (name, index) => {
+        // mssqsl input/bind parameters
+        const inputType = inputBindTypes &amp;&amp; inputBindTypes[name];
+        if (plan.stmt &amp;&amp; !iop.inputs.has(name)) {
+          if (!inputType) {
+            throw new Error(`Prepared statements require a "execOpts.driverOptions.inputBindTypes" to be set for bind variable ` + 
+              `"${name}" for SQL "${meta.name}"`);
+          }
+          plan.stmt.ps.input(name, inputType);
+          iop.inputs.set(name, inputType);
+        } else if (!plan.stmt &amp;&amp; !bnames.includes(name)) {
+          if (inputType) plan.req.input(name, inputType, bndp[name]);
+          else plan.req.input(name, bndp[name]);
+          bnames.push(name);
+        }
+        return `@${name}`;
+      });
+
+      // output types
+      for (let name in outputBindTypes) {
+        if (plan.stmt &amp;&amp; !iop.outputs.has(name)) {
+          plan.stmt.ps.output(name, outputBindTypes[name]);
+          iop.outputs.set(name, outputBindTypes[name]);
+        } else if (!plan.stmt) {
+          plan.req.output(name, outputBindTypes[name]);
+        }
+      }
+
+      rslts = await plan.run(esql);
+      rtn.rows = rslts.recordset;
+      rtn.raw = rslts;
+      const unprepare = plan.stmt ? async () => {
+        if (dlt.at.stmts.has(meta.path)) {
+          await dlt.at.stmts.get(meta.path).ps.unprepare();
+          dlt.at.stmts.delete(meta.path);
+        }
+      } : null;
+      if (unprepare) rtn.unprepare = unprepare;
+      if (plan.txo &amp;&amp; plan.txo.tx) {
+        const txEnd = async cmd => {
+          if (unprepare) await unprepare();
+          await plan.txo.tx[cmd]();
+          dlt.at.txs.delete(opts.transactionId);
+          dlt.at.state.pending = 0;
+        };
+        if (opts.autoCommit) {
+          if (unprepare) await unprepare();
+          await txEnd('commit');
+        } else {
+          dlt.at.state.pending++;
+          rtn.commit = async () => txEnd('commit');
+          rtn.rollback = async () => txEnd('rollback');
+        }
+      }
+
+      return rtn;
+    } catch (err) {
+      if (dlt.at.errorLogger) {
+        dlt.at.errorLogger(`Failed to execute the following SQL at ${meta.path}:\n${sql}`, err);
+      }
+      err.sqler = {
+        mssql: esql,
+        inputBindTypes,
+        outputBindTypes
+      };
+      throw err;
+    }
+  }
+
+  /**
+   * Gets the currently open execution plan or generates a new execution plan
+   * @protected
+   * @param {MSExecOptions} opts The execution options
+   * @param {Manager~ExecMeta} [meta] Pass meta to establish a connection
+   * @returns {Object} An object that contains the following fields:
+   * - `txo` - The transaction object (when an `opts.transactionId` is passed), contains `txId`, `tx` (MSSQL transaction)
+   * - `req` - The MSSQL request (undefined when using only prepared statement(s))
+   * - `stmt` - The prepared statement object (undefined when none), contains `txId`, `ps` (MSSQL prepared statement
+   * - `run` - The async function(sql) that will either _prepare_/_execute_ the passed SQL or _query_ the passed SQL
+   * (ensures transactions are ran in _series_ , even when user execution is in _parallel_)
+   */
+  async planner(opts, meta) {
+    const dlt = internal(this);
+    const txId = opts.transactionId;
+    const plan = {
+      txo: txId ? dlt.at.txs.get(txId) : null
+    };
+    if (txId &amp;&amp; !plan.txo) {
+      dlt.at.txs.set(txId, plan.txo = {
+        txId,
+        tx: dlt.at.pool.transaction()
+      });
+      await plan.txo.tx.begin(opts.isolationLevel);
+    }
+    if (!meta) return plan; // just initializing
+    if (opts.prepareStatement) {
+      plan.stmt = dlt.at.stmts.get(meta.path);
+      if (plan.stmt) {
+        let psErr;
+        if (plan.stmt.txId &amp;&amp; (!plan.txo || !plan.txo.tx)) {
+          psErr = new Error(`Prepared statement "${meta.path}" is already prepared within transaction "${plan.stmt.txId}".` +
+            ` Either include the "transactionId" along with the current "prepareStatement = true" or call ` +
+            `"unprepare" on the previous execution result before calling "${meta.path}" w/o a transaction.`);
+          psErr.name = 'TransactionInProgressError';
+        } else if (!plan.stmt.txId &amp;&amp; plan.txo &amp;&amp; plan.txo.tx) {
+          psErr = new Error(`Prepared statement "${meta.path}" is already prepared OUTSIDE of a transaction` +
+            `, yet is currently being called within "transactionId = '${plan.txo.txId}'". Either include the "transactionId"` +
+            ` along side the original "prepareStatement = true" or call "unprepare", "commit" or "rollback" on the` +
+            ` previous execution result before calling "${meta.path}" with "transactionId = '${plan.txo.txId}'".`);
+          psErr.name = 'TransactionNotInProgressError';
+        } else if (plan.stmt.txId &amp;&amp; plan.txo &amp;&amp; plan.stmt.txId !== plan.txo.txId) {
+          psErr = new Error(`Prepared statement "${meta.path}" is already prepared using "transactionId = '${plan.stmt.txId}'` +
+            `, yet is currently being called with "transactionId = '${plan.txo.txId}'". Either include the same "transactionId"` +
+            ` along side the all of the SQL function calls using "prepareStatement = true" or call "unprepare", "commit"` +
+            ` or "rollback" on the previous execution result before calling "${meta.path}" with "transactionId = '${plan.txo.txId}'".`);
+          psErr.name = 'TransactionMismatchError';
+        }
+        if (psErr) throw psErr;
+      } else {
+        dlt.at.stmts.set(meta.path, plan.stmt = {
+          txId,
+          ps: new dlt.at.driver.PreparedStatement((plan.txo &amp;&amp; plan.txo.tx) || dlt.at.pool)
+        });
+      }
+    } else if (plan.txo &amp;&amp; plan.txo.txId) {
+      plan.req = plan.txo.tx.request();
+    } else {
+      plan.req = dlt.at.pool.request();
+    }
+    // mssql ver >= 4 will not queue requests, need to manage them
+    plan.run = async (sql) => {
+      if (dlt.at.pends.length) await Promise.all(dlt.at.pends);
+      let prom;
+      if (plan.stmt) {
+        prom = new Promise(async (resolve, reject) => {
+          try {
+            if (!plan.stmt.preparePromise) {
+              plan.stmt.preparePromise = plan.stmt.ps.prepare(sql);
+            }
+            await plan.stmt.preparePromise;
+            resolve(await plan.stmt.ps.execute(sql));
+          } catch (err) { // may contain: err.precedingErrors
+            reject(err);
+          }
+        });
+      } else {
+        prom = plan.req.query(sql);
+      }
+      dlt.at.pends.push(prom); // run in series for tx
+      return prom.then(val => {
+        const idx = dlt.at.pends.indexOf(prom);
+        if (idx >= 0) dlt.at.pends.splice(idx, 1);
+        return val;
+      }, err => {
+        const idx = dlt.at.pends.indexOf(prom);
+        if (idx >= 0) dlt.at.pends.splice(idx, 1);
+        throw err;
+      });
+    };
+    return plan;
+  }
+
+  /**
+   * Closes the MSSQL connection pool
+   * @returns {Integer} The number of connections closed
+   */
+  async close() {
+    const dlt = internal(this);
+    let error;
+    try {
+      if (dlt.at.logger) {
+        dlt.at.logger(`sqler-mssql: Closing connection pool "${dlt.at.opts.id}" (uncommitted transactions: ${dlt.at.state.pending})`);
+      }
+      if (dlt.at.pool) { 
+        dlt.at.pool.close();
+        dlt.at.txs.clear();
+        dlt.at.stmts.clear();
+      }
+    } catch (err) {
+      error = err;
+      if (dlt.at.errorLogger) {
+        dlt.at.errorLogger(`sqler-mssql: Failed to close connection pool "${dlt.at.opts.id}" (uncommitted transactions: ${dlt.at.state.pending})`, err);
+      }
+    }
+    if (error) throw error;
+    return dlt.at.state.pending;
+  }
+
+  /**
+   * @returns {Manager~State} The state
+   */
+  get state() {
+    const dlt = internal(this);
+    // mssql uses https://www.npmjs.com/package/tarn
+    const pooled = dlt.at.pool &amp;&amp; dlt.at.pool.pool;
+    return {
+      connection: {
+        count: (pooled &amp;&amp; pooled.max) || 0,
+        inUse: (pooled &amp;&amp; pooled.used &amp;&amp; pooled.used.length) || 0
+      },
+      pending: dlt.at.state.pending
+      // pending: (
+      //   pooled &amp;&amp; pooled.pendingCreates &amp;&amp; pooled.pendingAcquires &amp;&amp; (
+      //       pooled.pendingCreates.length + pooled.pendingAcquires.length
+      //     )
+      //   ) || 0
+    };
+  }
+
+  /**
+   * @protected
+   * @returns {Object} The MSSQL driver module
+   */
+  get driver() {
+    return internal(this).at.driver;
+  }
+};
+
+// private mapping
+let map = new WeakMap();
+let internal = function(object) {
+  if (!map.has(object)) {
+    map.set(object, {});
+  }
+  return {
+    at: map.get(object),
+    this: object
+  };
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<div id="jsdocpChangelogContent" data-title="CHANGELOG v1.0.0">
+  <svg class="jsdocp-close" id="jsdocpChangelogClose" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+    <path d="M0 0h24v24H0z" fill="none"/>
+  </svg>
+  <h2><a href="https://ugate.github.io/sqler-mssql/tree/v1.0.0">1.0.0</a> (2020-05-08)</h2>
+<p><a href="https://ugate.github.io/sqler-mssql/compare/v1.0.0...v1.0.0">Full Changelog</a></p>
+<p><strong>Features:</strong></p>
+<ul>
+<li><a href="https://ugate.github.io/sqler-mssql/commit/5855a129c2827cf85a7323da3ea3abd354226a51">[FEATURE]: Prepared statements within transactions</a></li>
+<li><a href="https://ugate.github.io/sqler-mssql/commit/67824b422d69297a9dfa219fa2aec16c6a2cc8b4">[FEATURE]: Initial commit</a></li>
+</ul>
+</div>
+
+
+
+<script src="jsdocp/scripts/index.js"></script></body>
+</html>
