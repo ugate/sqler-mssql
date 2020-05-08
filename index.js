@@ -23,6 +23,15 @@
  * For example, `binds.name = '${SOME_MSSQL_CONSTANT}'` will be interpolated as `binds.name = mssql.SOME_MSSQL_CONSTANT`.
  * @typedef {Manager~ExecOptions} MSExecOptions
  * @property {Object} [driverOptions] The `mssql` module specific options pertaining executions
+ * @property {Object} [driverOptions.inputBindTypes] An object that contains properties that match the bind parameter names. Each property should contain a value
+ * that corresponds to a `mssql` module specific bind type. Each bind type will result in a call to either `mssql.Request.input`, `mssql.PreparedStatement.input`.
+ * __When using `preparedStatement = true`, input bind types are required.__
+ * When a property value is a string surrounded by `${}`, it will be assumed to be a property that resides on the `mssql` module itself. For example,
+ * `driverOptions.inputBindTypes.name = '${VarChar}'` would be interpolated into `driverOptions.inputBindTypes.name = mssql.VarChar`.
+ *  @property {Object} [driverOptions.outputBindTypes] An object that contains properties that match the bind parameter names. Each property should contain a value
+ * that corresponds to a `mssql` module specific bind type. Each bind type will result in a call to either `mssql.Request.output`, `mssql.PreparedStatement.output`.
+ * When a property value is a string surrounded by `${}`, it will be assumed to be a property that resides on the `mssql` module itself. For example,
+ * `driverOptions.outputBindTypes.name = '${VarChar}'` would be interpolated into `driverOptions.outputBindTypes.name = mssql.VarChar`.
  */
 
 /**
@@ -56,7 +65,10 @@ module.exports = class MSDialect {
     const dlt = internal(this);
     dlt.at.track = track;
     dlt.at.driver = require('mssql');
-    dlt.at.transactions = new Map();
+    dlt.at.txs = new Map();
+    dlt.at.stmts = new Map();
+    dlt.at.pends = [];
+    dlt.at.iop = new Map();
     dlt.at.opts = {
       autoCommit: true, // default autoCommit = true to conform to sqler
       id: `sqlerMSSQLGen${Math.floor(Math.random() * 10000)}`,
@@ -129,18 +141,17 @@ module.exports = class MSDialect {
    */
   async beginTransaction(txId, opts) {
     const dlt = internal(this);
-    if (dlt.at.transactions.has(txId)) return;
+    if (dlt.at.txs.has(txId)) return;
     const topts = dlt.at.track.interpolate({}, opts, dlt.at.driver.ISOLATION_LEVEL);
     if (dlt.at.logger) {
       dlt.at.logger(`sqler-mssql: Beginning transaction "${txId}" on connection pool "${dlt.at.opts.id}" (isolation level: ${
         topts.isolationLevel || 'default'
       })`);
     }
-    const plan = await dlt.this.getPlan({
+    return dlt.this.planner({
       transactionId: txId,
       isolationLevel: topts.isolationLevel
     });
-    dlt.at.transactions.set(txId, plan);
   }
 
   /**
@@ -154,67 +165,85 @@ module.exports = class MSDialect {
    */
   async exec(sql, opts, frags, meta, errorOpts) {
     const dlt = internal(this);
-    let plan, bndp = {}, bnds = [], bindTypes, esql = sql, rslts;
+    let plan, bndp = {}, bnds = [], inputBindTypes, outputBindTypes, esql = sql, rslts;
     try {
       // interpolate and remove unused binds since
       // MSSQL only accepts the exact number of bind parameters (also, cuts down on payload bloat)
       bndp = dlt.at.track.interpolate(bndp, opts.binds, dlt.at.driver, props => sql.includes(`:${props[0]}`));
-      bindTypes = opts.driverOptions && opts.driverOptions.bindTypes ?
-        dlt.at.track.interpolate({}, opts.driverOptions.bindTypes, dlt.at.driver)
+      inputBindTypes = opts.driverOptions && opts.driverOptions.inputBindTypes ?
+        dlt.at.track.interpolate({}, opts.driverOptions.inputBindTypes, dlt.at.driver)
         : null;
+      outputBindTypes = opts.driverOptions && opts.driverOptions.outputBindTypes ?
+        dlt.at.track.interpolate({}, opts.driverOptions.outputBindTypes, dlt.at.driver)
+        : null;
+      // input/output types are globally set for a statement rather than on each prepared statement instance
+      // so, they have to be kept track of on a SQL/meta path basis to prevent dupication errors
+      let iop = (inputBindTypes || outputBindTypes) && dlt.at.iop.get(meta.path);
+      if ((inputBindTypes || outputBindTypes) && !iop) {
+        dlt.at.iop.set(meta.path, iop = {
+          inputs: new Map(),
+          outputs: new Map()
+        });
+      }
 
       const rtn = {};
 
-      plan = await dlt.this.getPlan(opts, meta);
-      const isPrepared = plan.stmts && plan.stmts.has(meta.path);
-      const pso = isPrepared && plan.stmts.get(meta.path);
-      const bnames = [];
+      plan = await dlt.this.planner(opts, meta);
+      const bnames = plan.stmt ? null : [];const ddd = Math.random();
 
       // mssql expects the format: @paramName
       esql = dlt.at.track.positionalBinds(esql, bndp, bnds, (name, index) => {
-        if (!bnames.includes(name)) {
-          // mssqsl input/bind parameters
-          const btype = bindTypes && bindTypes[name];
-          if (isPrepared && !pso.bindTypes[name]) {
-            if (!btype) {
-              throw new Error(`Prepared statements require a "execOpts.driverOptions.bindTypes" to be set for bind varable ` + 
-                `"${name}" for SQL "${meta.name}"`);
-            }
-            pso.ps.input(name, btype);
-            pso.bindTypes[name] = btype;
-          } else if (!isPrepared) {
-            if (btype) plan.req.input(name, btype, bndp[name]);
-            else plan.req.input(name, bndp[name]);
+        // mssqsl input/bind parameters
+        const inputType = inputBindTypes && inputBindTypes[name];
+        if (plan.stmt && !iop.inputs.has(name)) {
+          if (!inputType) {
+            throw new Error(`Prepared statements require a "execOpts.driverOptions.inputBindTypes" to be set for bind variable ` + 
+              `"${name}" for SQL "${meta.name}"`);
           }
+          plan.stmt.ps.input(name, inputType);
+          iop.inputs.set(name, inputType);
+        } else if (!plan.stmt && !bnames.includes(name)) {
+          if (inputType) plan.req.input(name, inputType, bndp[name]);
+          else plan.req.input(name, bndp[name]);
           bnames.push(name);
         }
         return `@${name}`;
       });
 
+      // output types
+      for (let name in outputBindTypes) {
+        if (plan.stmt && !iop.outputs.has(name)) {
+          plan.stmt.ps.output(name, outputBindTypes[name]);
+          iop.outputs.set(name, outputBindTypes[name]);
+        } else if (!plan.stmt) {
+          plan.req.output(name, outputBindTypes[name]);
+        }
+      }
+
       rslts = await plan.run(esql);
       rtn.rows = rslts.recordset;
       rtn.raw = rslts;
-      const unprepare = isPrepared ? async () => {
-        if (plan.stmts.has(meta.path)) {
-          await operation(dlt, 'unprepare', false, plan.stmts.get(meta.path).ps, opts)();
-          plan.stmts.delete(meta.path);
+      const unprepare = plan.stmt ? async () => {
+        if (dlt.at.stmts.has(meta.path)) {
+          await dlt.at.stmts.get(meta.path).ps.unprepare();
+          dlt.at.stmts.delete(meta.path);
         }
       } : null;
       if (unprepare) rtn.unprepare = unprepare;
-      if (plan.tx) {
+      if (plan.txo && plan.txo.tx) {
+        const txEnd = async cmd => {
+          if (unprepare) await unprepare();
+          await plan.txo.tx[cmd]();
+          dlt.at.txs.delete(opts.transactionId);
+          dlt.at.state.pending = 0;
+        };
         if (opts.autoCommit) {
           if (unprepare) await unprepare();
-          await operation(dlt, 'commit', false, plan.tx, opts)();
+          await txEnd('commit');
         } else {
           dlt.at.state.pending++;
-          rtn.commit = async () => {
-            if (unprepare) await unprepare();
-            await operation(dlt, 'commit', true, plan.tx, opts)();
-          };
-          rtn.rollback = async () => {
-            if (unprepare) await unprepare();
-            await operation(dlt, 'rollback', true, plan.tx, opts)();
-          };
+          rtn.commit = async () => txEnd('commit');
+          rtn.rollback = async () => txEnd('rollback');
         }
       }
 
@@ -225,7 +254,8 @@ module.exports = class MSDialect {
       }
       err.sqler = {
         mssql: esql,
-        bindTypes
+        inputBindTypes,
+        outputBindTypes
       };
       throw err;
     }
@@ -237,88 +267,90 @@ module.exports = class MSDialect {
    * @param {MSExecOptions} opts The execution options
    * @param {Manager~ExecMeta} [meta] Pass meta to establish a connection
    * @returns {Object} An object that contains the following fields:
-   * - `tx` - The transaction (when an `opts.transactionId` is passed)
-   * - `req` - The request object (undefined when using only prepared statement(s))
-   * - `stmts` - A Map of prepared statements related to the plan (undefined when none)
-   * - `run` - The async function(sql) that will either  _prepare_ the passed SQL or _query_ the passed SQL
+   * - `txo` - The transaction object (when an `opts.transactionId` is passed), contains `txId`, `tx` (MSSQL transaction)
+   * - `req` - The MSSQL request (undefined when using only prepared statement(s))
+   * - `stmt` - The prepared statement object (undefined when none), contains `txId`, `ps` (MSSQL prepared statement
+   * - `run` - The async function(sql) that will either _prepare_/_execute_ the passed SQL or _query_ the passed SQL
    * (ensures transactions are ran in _series_ , even when user execution is in _parallel_)
    */
-  async getPlan(opts, meta) {
+  async planner(opts, meta) {
     const dlt = internal(this);
     const txId = opts.transactionId;
-    let plan = txId ? dlt.at.transactions.get(txId) : null;
-    if (txId && !plan) {
-      plan = {
+    const plan = {
+      txo: txId ? dlt.at.txs.get(txId) : null
+    };
+    if (txId && !plan.txo) {
+      dlt.at.txs.set(txId, plan.txo = {
         txId,
         tx: dlt.at.pool.transaction()
-      };
-      await plan.tx.begin(opts.isolationLevel);
+      });
+      await plan.txo.tx.begin(opts.isolationLevel);
     }
-    if (meta && (!plan || !plan.conn)) {
-      if (!plan) plan = {};
-      plan.bindNames = plan.bindNames || [];
-      if (opts.prepareStatement) {
-        if (!plan.stmts) plan.stmts = new Map();
-        const pso = plan.stmts.has(meta.path) ? plan.stmts.get(meta.path) : null;
-        if (pso) {
-          let psErr;
-          if (pso.inTx && !plan.tx) {
-            psErr = new Error(`Prepared statement "${meta.path}" is already prepared within transaction "${pso.txId}".` +
-              ` Either include the "transactionId" along with the current "prepareStatement = true" or call ` +
-              `"unprepare" on the previous execution result before calling "${meta.path}" w/o a transaction.`);
-            psErr.name = 'TransactionInProgressError';
-          } else if (!pso.inTx && plan.tx) {
-            psErr = new Error(`Prepared statement "${meta.path}" is already prepared OUTSIDE of a transaction` +
-              `, yet is currently being called within "transactionId = '${txId}'". Either include the "transactionId"` +
-              ` along side the original "prepareStatement = true" or call "unprepare", "commit" or "rollback" on the` +
-              ` previous execution result before calling "${meta.path}" with "transactionId = '${txId}'".`);
-            psErr.name = 'TransactionNotInProgressError';
-          } else if (pso.inTx && plan.txId !== txId) {
-            psErr = new Error(`Prepared statement "${meta.path}" is already prepared using "transactionId = '${plan.txId}'` +
-              `, yet is currently being called with "transactionId = '${txId}'". Either include the same "transactionId"` +
-              ` along side the all of the SQL function calls using "prepareStatement = true" or call "unprepare", "commit"` +
-              ` or "rollback" on the` +
-              ` previous execution result before calling "${meta.path}" with "transactionId = '${txId}'".`);
-            psErr.name = 'TransactionMismatchError';
-          }
-          if (psErr) throw psErr;
-        } else {
-          plan.stmts.set(meta.path, {
-            txId,
-            inTx: !!plan.tx,
-            ps: new dlt.at.driver.PreparedStatement(plan.tx || dlt.at.pool),
-            bindTypes: {}
-          });
+    if (!meta) return plan; // just initializing
+    if (opts.prepareStatement) {
+      plan.stmt = dlt.at.stmts.get(meta.path);
+      if (plan.stmt) {
+        let psErr;
+        if (plan.stmt.txId && (!plan.txo || !plan.txo.tx)) {
+          psErr = new Error(`Prepared statement "${meta.path}" is already prepared within transaction "${plan.stmt.txId}".` +
+            ` Either include the "transactionId" along with the current "prepareStatement = true" or call ` +
+            `"unprepare" on the previous execution result before calling "${meta.path}" w/o a transaction.`);
+          psErr.name = 'TransactionInProgressError';
+        } else if (!plan.stmt.txId && plan.txo && plan.txo.tx) {
+          psErr = new Error(`Prepared statement "${meta.path}" is already prepared OUTSIDE of a transaction` +
+            `, yet is currently being called within "transactionId = '${plan.txo.txId}'". Either include the "transactionId"` +
+            ` along side the original "prepareStatement = true" or call "unprepare", "commit" or "rollback" on the` +
+            ` previous execution result before calling "${meta.path}" with "transactionId = '${plan.txo.txId}'".`);
+          psErr.name = 'TransactionNotInProgressError';
+        } else if (plan.stmt.txId && plan.txo && plan.stmt.txId !== plan.txo.txId) {
+          psErr = new Error(`Prepared statement "${meta.path}" is already prepared using "transactionId = '${plan.stmt.txId}'` +
+            `, yet is currently being called with "transactionId = '${plan.txo.txId}'". Either include the same "transactionId"` +
+            ` along side the all of the SQL function calls using "prepareStatement = true" or call "unprepare", "commit"` +
+            ` or "rollback" on the previous execution result before calling "${meta.path}" with "transactionId = '${plan.txo.txId}'".`);
+          psErr.name = 'TransactionMismatchError';
         }
-      } else if (txId) {
-        plan.req = plan.tx.request();
+        if (psErr) throw psErr;
       } else {
-        plan.req = dlt.at.pool.request();
+        dlt.at.stmts.set(meta.path, plan.stmt = {
+          txId,
+          ps: new dlt.at.driver.PreparedStatement((plan.txo && plan.txo.tx) || dlt.at.pool)
+        });
       }
-      const pends = [];
-      plan.run = async sql => {
-        if (pends.length) await Promise.all(pends);
-        let prom;
-        if (plan.stmts && plan.stmts.has(meta.path)) {
-          prom = new Promise(async (resolve, reject) => {
-            try {
-              const pso = plan.stmts.get(meta.path);
-              if (!pso.preparePromise) {
-                pso.preparePromise = pso.ps.prepare(sql);
-              }
-              await pso.preparePromise;
-              resolve(await pso.ps.execute(sql));
-            } catch (err) { // may contain: err.precedingErrors
-              reject(err);
-            }
-          });
-        } else {
-          prom = plan.req.query(sql);
-        }
-        if (plan.tx) pends.push(prom); // run in series for tx
-        return prom;
-      };
+    } else if (plan.txo && plan.txo.txId) {
+      plan.req = plan.txo.tx.request();
+    } else {
+      plan.req = dlt.at.pool.request();
     }
+    // mssql ver >= 4 will not queue requests, need to manage them
+    plan.run = async (sql) => {
+      if (dlt.at.pends.length) await Promise.all(dlt.at.pends);
+      let prom;
+      if (plan.stmt) {
+        prom = new Promise(async (resolve, reject) => {
+          try {
+            if (!plan.stmt.preparePromise) {
+              plan.stmt.preparePromise = plan.stmt.ps.prepare(sql);
+            }
+            await plan.stmt.preparePromise;
+            resolve(await plan.stmt.ps.execute(sql));
+          } catch (err) { // may contain: err.precedingErrors
+            reject(err);
+          }
+        });
+      } else {
+        prom = plan.req.query(sql);
+      }
+      dlt.at.pends.push(prom); // run in series for tx
+      return prom.then(val => {
+        const idx = dlt.at.pends.indexOf(prom);
+        if (idx >= 0) dlt.at.pends.splice(idx, 1);
+        return val;
+      }, err => {
+        const idx = dlt.at.pends.indexOf(prom);
+        if (idx >= 0) dlt.at.pends.splice(idx, 1);
+        throw err;
+      });
+    };
     return plan;
   }
 
@@ -335,7 +367,8 @@ module.exports = class MSDialect {
       }
       if (dlt.at.pool) { 
         dlt.at.pool.close();
-        dlt.at.transactions.clear();
+        dlt.at.txs.clear();
+        dlt.at.stmts.clear();
       }
     } catch (err) {
       error = err;
@@ -352,12 +385,19 @@ module.exports = class MSDialect {
    */
   get state() {
     const dlt = internal(this);
+    // mssql uses https://www.npmjs.com/package/tarn
+    const pooled = dlt.at.pool && dlt.at.pool.pool;
     return {
       connection: {
-        count: (dlt.at.pool && dlt.at.pool.size) || 0,
-        inUse: (dlt.at.pool && dlt.at.pool.available) || 0
+        count: (pooled && pooled.max) || 0,
+        inUse: (pooled && pooled.used && pooled.used.length) || 0
       },
-      pending: dlt.at.state.pending || (dlt.at.pool && dlt.at.pool.pending) || 0
+      pending: dlt.at.state.pending
+      // pending: (
+      //   pooled && pooled.pendingCreates && pooled.pendingAcquires && (
+      //       pooled.pendingCreates.length + pooled.pendingAcquires.length
+      //     )
+      //   ) || 0
     };
   }
 
@@ -369,47 +409,6 @@ module.exports = class MSDialect {
     return internal(this).at.driver;
   }
 };
-
-/**
- * Executes a function by name that resides on the MSSQL connection
- * @private
- * @param {Object} dlt The internal MSSQL object instance
- * @param {String} name The name of the function that will be called on the connection
- * @param {Boolean} reset Truthy to reset the pending connection and transaction count when the operation completes successfully
- * @param {Object} conn The connection
- * @param {Manager~ExecOptions} [opts] The {@link Manager~ExecOptions}
- * @param {Error} [error] An originating error where any oprational errors will be set as a property of the passed error
- * (e.g. `name = 'close'` would result in `error.closeError = someInternalError`). __Internal Errors will not be thrown.__
- * @returns {Function} A no-arguement `async` function that returns the number or pending transactions
- */
-function operation(dlt, name, reset, conn, opts, error) {
-  return async () => {
-    try {
-      if (dlt.at.logger) {
-        dlt.at.logger(`sqler-mssql: Performing ${name} for connection pool "${dlt.at.opts.id}" (uncommitted transactions: ${dlt.at.state.pending})`);
-      }
-      await conn[name]();
-      if (reset) {
-        if (opts && opts.transactionId) dlt.at.transactions.delete(opts.transactionId);
-        dlt.at.state.pending = 0;
-      }
-    } catch (err) {
-      if (dlt.at.errorLogger) {
-        dlt.at.errorLogger(`sqler-mssql: Failed to ${name} ${dlt.at.state.pending} on ${
-            (conn.constructor && conn.constructor.name) || 'connection'
-          } with options: ${
-            opts ? JSON.stringify(opts) : 'N/A'
-          }`, err);
-      }
-      if (error) {
-        error[`${name}Error`] = err;
-      } else {
-        throw err;
-      }
-    }
-    return dlt.at.state.pending;
-  };
-}
 
 // private mapping
 let map = new WeakMap();

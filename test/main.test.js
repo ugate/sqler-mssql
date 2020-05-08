@@ -38,7 +38,7 @@ lab.experiment(plan, () => {
   lab.test(`${plan}: Host and Port Defaults`, { timeout: TEST_TKO }, Tester.hostPortSwap);
   lab.test(`${plan}: Multiple connections`, { timeout: TEST_TKO }, Tester.multipleConnections);
   lab.test(`${plan}: Close before init`, { timeout: TEST_TKO }, Tester.closeBeforeInit);
-  //lab.test(`${plan}: State`, { timeout: TEST_TKO }, Tester.state);
+  lab.test(`${plan}: State`, { timeout: TEST_TKO }, Tester.state);
 
   lab.test(`${plan}: CRUD`, { timeout: TEST_TKO }, Tester.crud);
   lab.test(`${plan}: Invalid SQL`, Labrat.expectFailure('onUnhandledRejection', { expect, label: 'invalid SQL throw' }, Tester.sqlInvalidThrow));

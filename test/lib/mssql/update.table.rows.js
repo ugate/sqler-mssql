@@ -13,9 +13,9 @@ module.exports = async function runExample(manager, connName) {
     id2: 1, name2: 'TABLE: 2, ROW: 1 (UPDATE)', updated2: date
   };
   // mssql bind types (values interpolated from the mssql module)
-  const bindTypes1 = {
+  const inputBindTypes1 = {
     id: "${Int}",
-    name: "${VarChar}(255)",
+    name: "${VarChar}",
     updated: "${DateTime}"
   };
   const rtn = {};
@@ -29,10 +29,10 @@ module.exports = async function runExample(manager, connName) {
   await explicitTransactionUpdate(manager, connName, binds1, binds2, rtn);
 
   // Using a prepared statement:
-  await preparedStatementUpdate(manager, connName, binds1, bindTypes1, rtn);
+  await preparedStatementUpdate(manager, connName, binds1, inputBindTypes1, rtn);
 
   // Using a prepared statement within a transaction
-  await preparedStatementTransactionUpdate(manager, connName, binds1, bindTypes1, rtn);
+  await preparedStatementTransactionUpdate(manager, connName, binds1, inputBindTypes1, rtn);
 
   return rtn;
 };
@@ -68,7 +68,7 @@ async function explicitTransactionUpdate(manager, connName, binds1, binds2, rtn)
     // could commit using either one of the returned results
     await rtn.txRslts[0].commit();
   } catch (err) {
-    if (rtn.txRslts[0]) {
+    if (rtn.txRslts[0] && rtn.txRslts[0].rollback) {
       // could rollback using either one of the returned results
       await rtn.txRslts[0].rollback();
     }
@@ -76,7 +76,7 @@ async function explicitTransactionUpdate(manager, connName, binds1, binds2, rtn)
   }
 }
 
-async function preparedStatementUpdate(manager, connName, binds, bindTypes, rtn) {
+async function preparedStatementUpdate(manager, connName, binds, inputBindTypes, rtn) {
   rtn.psRslts = new Array(2); // don't exceed connection pool count
   try {
     for (let i = 0; i < rtn.psRslts.length; i++) {
@@ -93,7 +93,7 @@ async function preparedStatementUpdate(manager, connName, binds, bindTypes, rtn)
           // on the first prepared statement call the
           // statement will be registered and a
           // dedicated connection will be allocated
-          bindTypes
+          inputBindTypes
         },
         // include the bind parameters
         binds
@@ -105,7 +105,7 @@ async function preparedStatementUpdate(manager, connName, binds, bindTypes, rtn)
     }
   } finally {
     // could call unprepare using any of the returned execution results
-    if (rtn.psRslts[0]) {
+    if (rtn.psRslts[0] && rtn.psRslts[0].unprepare) {
       // since prepareStatement = true, we need to close the statement
       // and release the statement connection back to the pool
       await rtn.psRslts[0].unprepare();
@@ -113,7 +113,7 @@ async function preparedStatementUpdate(manager, connName, binds, bindTypes, rtn)
   }
 }
 
-async function preparedStatementTransactionUpdate(manager, connName, binds, bindTypes, rtn) {
+async function preparedStatementTransactionUpdate(manager, connName, binds, inputBindTypes, rtn) {
   rtn.psTxRslts = new Array(2); // don't exceed connection pool count
   try {
     // start a transaction
@@ -127,7 +127,8 @@ async function preparedStatementTransactionUpdate(manager, connName, binds, bind
         transactionId: txId, // ensure execution takes place within transaction
         prepareStatement: true, // ensure a prepared statement is used
         driverOptions: {
-          bindTypes // required mssql bind types for prepared statements
+          inputBindTypes, // required mssql bind types for prepared statements
+          outputBindTypes: inputBindTypes // optional
         },
         binds
       });
@@ -141,7 +142,7 @@ async function preparedStatementTransactionUpdate(manager, connName, binds, bind
     // (alt, could have called unprepare before commit)
     await rtn.psTxRslts[0].commit();
   } catch (err) {
-    if (rtn.psTxRslts[0]) {
+    if (rtn.psTxRslts[0] && rtn.psTxRslts[0].rollback) {
       // unprepare will be called when calling rollback
       // (alt, could have called unprepare before rollback)
       await rtn.psTxRslts[0].rollback();

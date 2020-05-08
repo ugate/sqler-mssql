@@ -7,10 +7,17 @@ const Fs = require('fs');
 module.exports = async function runExample(manager, connName) {
 
   // read from multiple tables
-  const rslt = await manager.db[connName].read.table.rows({ binds: { name: 'table' } });
+  const rslt = await manager.db[connName].read.table.rows({
+    binds: { name: 'table' },
+    driverOptions: {
+      // output bind types are optional
+      outputBindTypes: {
+        id: '${Int}'
+      }
+    }
+  });
 
   // write binary report buffer to file?
-  let report;
   const writeProms = [];
   for (let row of rslt.rows) {
     if (row.report) {
