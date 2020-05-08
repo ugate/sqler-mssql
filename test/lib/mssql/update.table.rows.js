@@ -52,11 +52,13 @@ async function explicitTransactionUpdate(manager, connName, binds1, binds2, rtn)
     // contract definition, but for API compatibility they can be ran in
     // parallel from a Manager perspective
     rtn.txRslts[0] = manager.db[connName].update.table1.rows({
+      name: 'TX 1', // name is optional
       autoCommit: false,
       transactionId: txId, // ensure execution takes place within transaction
       binds: binds1
     });
     rtn.txRslts[1] = manager.db[connName].update.table2.rows({
+      name: 'TX 2', // name is optional
       autoCommit: false,
       transactionId: txId, // ensure execution takes place within transaction
       binds: binds2
@@ -84,6 +86,7 @@ async function preparedStatementUpdate(manager, connName, binds, inputBindTypes,
       binds.name += ` | From Prepared Statement iteration #${i}`;
       // Using an implicit transcation (autoCommit defaults to true):
       rtn.psRslts[i] = manager.db[connName].update.table1.rows({
+        name: `PS ${i}`, // name is optional
         // flag the SQL execution as a prepared statement
         // this will cause the statement to be prepared
         // and a dedicated connection to be allocated from
@@ -123,6 +126,7 @@ async function preparedStatementTransactionUpdate(manager, connName, binds, inpu
       // update with expanded name
       binds.name += ` | From Prepared Statement with txId "${txId}" iteration #${i}`;
       rtn.psTxRslts[i] = manager.db[connName].update.table1.rows({
+        name: `TX/PS ${i}`, // name is optional
         autoCommit: false,
         transactionId: txId, // ensure execution takes place within transaction
         prepareStatement: true, // ensure a prepared statement is used
