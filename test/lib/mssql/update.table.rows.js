@@ -22,8 +22,8 @@ module.exports = async function runExample(manager, connName) {
 
   //-------------------------------------------------------
   // There are two different ways to perform a transaction
-  // 1. Implicit (suitable for a single execution in 1 tx)
-  // 2. Explicit (suitable for multiple executions in 1 tx)
+  // 1. Implicit (suitable for a single execution per tx)
+  // 2. Explicit (suitable for multiple executions per tx)
 
   // using implicit transactions:
   await implicitTransactionUpdate(manager, connName, binds1, binds2, rtn);
