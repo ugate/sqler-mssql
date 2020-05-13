@@ -22,8 +22,11 @@ module.exports = async function runExample(manager, connName) {
 
   //-------------------------------------------------------
   // There are two different ways to perform a transaction
-  // 1. Explicit (suitable for multiple executions in 1 tx)
-  // 2. Implicit (suitable for a single execution in 1 tx)
+  // 1. Implicit (suitable for a single execution in 1 tx)
+  // 2. Explicit (suitable for multiple executions in 1 tx)
+
+  // using implicit transactions:
+  await implicitTransactionUpdate(manager, connName, binds1, binds2, rtn);
 
   // Using an explicit transaction:
   await explicitTransactionUpdate(manager, connName, binds1, binds2, rtn);
@@ -31,14 +34,35 @@ module.exports = async function runExample(manager, connName) {
   // Using a prepared statement:
   await preparedStatementUpdate(manager, connName, binds1, inputBindTypes1, rtn);
 
-  // Using a prepared statement within a transaction
-  await preparedStatementTransactionUpdate(manager, connName, binds1, inputBindTypes1, rtn);
+  // Using a prepared statement within an explicit transaction
+  await preparedStatementExplicitTxUpdate(manager, connName, binds1, inputBindTypes1, rtn);
 
   return rtn;
 };
 
+async function implicitTransactionUpdate(manager, connName, binds1, binds2, rtn) {
+  rtn.txImpRslts = new Array(2); // don't exceed connection pool count
+
+  // Example execution in parallel using an implicit transaction for
+  // each SQL execution (autoCommit = true is the default)
+  // NOTE: Internally, transactions are ran in series since that is the
+  // contract definition, but for API compatibility they can be ran in
+  // parallel from a Manager perspective
+  rtn.txImpRslts[0] = manager.db[connName].update.table1.rows({
+    name: 'TX Implicit 1', // name is optional
+    binds: binds1
+  });
+  rtn.txImpRslts[1] = manager.db[connName].update.table2.rows({
+    name: 'TX Implicit 2', // name is optional
+    binds: binds2
+  });
+  // could have also ran is series by awaiting when the SQL function is called
+  rtn.txImpRslts[0] = await rtn.txImpRslts[0];
+  rtn.txImpRslts[1] = await rtn.txImpRslts[1];
+}
+
 async function explicitTransactionUpdate(manager, connName, binds1, binds2, rtn) {
-  rtn.txRslts = new Array(2); // don't exceed connection pool count
+  rtn.txExpRslts = new Array(2); // don't exceed connection pool count
   try {
     // start a transaction
     const txId = await manager.db[connName].beginTransaction({
@@ -51,28 +75,28 @@ async function explicitTransactionUpdate(manager, connName, binds1, binds2, rtn)
     // NOTE: Internally, transactions are ran in series since that is the
     // contract definition, but for API compatibility they can be ran in
     // parallel from a Manager perspective
-    rtn.txRslts[0] = manager.db[connName].update.table1.rows({
-      name: 'TX 1', // name is optional
+    rtn.txExpRslts[0] = manager.db[connName].update.table1.rows({
+      name: 'TX Explicit 1', // name is optional
       autoCommit: false,
       transactionId: txId, // ensure execution takes place within transaction
       binds: binds1
     });
-    rtn.txRslts[1] = manager.db[connName].update.table2.rows({
-      name: 'TX 2', // name is optional
+    rtn.txExpRslts[1] = manager.db[connName].update.table2.rows({
+      name: 'TX Explicit 2', // name is optional
       autoCommit: false,
       transactionId: txId, // ensure execution takes place within transaction
       binds: binds2
     });
-    // could have also ran is series by awaiting when SQL function is called
-    rtn.txRslts[0] = await rtn.txRslts[0];
-    rtn.txRslts[1] = await rtn.txRslts[1];
+    // could have also ran is series by awaiting when the SQL function is called
+    rtn.txExpRslts[0] = await rtn.txExpRslts[0];
+    rtn.txExpRslts[1] = await rtn.txExpRslts[1];
 
     // could commit using either one of the returned results
-    await rtn.txRslts[0].commit();
+    await rtn.txExpRslts[0].commit();
   } catch (err) {
-    if (rtn.txRslts[0] && rtn.txRslts[0].rollback) {
+    if (rtn.txExpRslts[0] && rtn.txExpRslts[0].rollback) {
       // could rollback using either one of the returned results
-      await rtn.txRslts[0].rollback();
+      await rtn.txExpRslts[0].rollback();
     }
     throw err;
   }
@@ -83,7 +107,7 @@ async function preparedStatementUpdate(manager, connName, binds, inputBindTypes,
   try {
     for (let i = 0; i < rtn.psRslts.length; i++) {
       // update with expanded name
-      binds.name += ` | From Prepared Statement iteration #${i}`;
+      binds.name = `Prepared statement iteration #${i}`;
       // Using an implicit transcation (autoCommit defaults to true):
       rtn.psRslts[i] = manager.db[connName].update.table1.rows({
         name: `PS ${i}`, // name is optional
@@ -116,18 +140,18 @@ async function preparedStatementUpdate(manager, connName, binds, inputBindTypes,
   }
 }
 
-async function preparedStatementTransactionUpdate(manager, connName, binds, inputBindTypes, rtn) {
-  rtn.psTxRslts = new Array(2); // don't exceed connection pool count
+async function preparedStatementExplicitTxUpdate(manager, connName, binds, inputBindTypes, rtn) {
+  rtn.txExpPsRslts = new Array(2); // don't exceed connection pool count
   try {
     // start a transaction
     const txId = await manager.db[connName].beginTransaction();
 
-    for (let i = 0; i < rtn.psTxRslts.length; i++) {
+    for (let i = 0; i < rtn.txExpPsRslts.length; i++) {
       // update with expanded name
-      binds.name += ` | From Prepared Statement with txId "${txId}" iteration #${i}`;
-      rtn.psTxRslts[i] = manager.db[connName].update.table1.rows({
+      binds.name += `Prepared statement with txId "${txId}" iteration #${i}`;
+      rtn.txExpPsRslts[i] = manager.db[connName].update.table1.rows({
         name: `TX/PS ${i}`, // name is optional
-        autoCommit: false,
+        autoCommit: false, // don't auto-commit after execution
         transactionId: txId, // ensure execution takes place within transaction
         prepareStatement: true, // ensure a prepared statement is used
         driverOptions: {
@@ -138,18 +162,18 @@ async function preparedStatementTransactionUpdate(manager, connName, binds, inpu
       });
     }
     // wait for parallel executions to complete
-    for (let i = 0; i < rtn.psTxRslts.length; i++) {
-      rtn.psTxRslts[i] = await rtn.psTxRslts[i];
+    for (let i = 0; i < rtn.txExpPsRslts.length; i++) {
+      rtn.txExpPsRslts[i] = await rtn.txExpPsRslts[i];
     }
 
     // unprepare will be called when calling commit
     // (alt, could have called unprepare before commit)
-    await rtn.psTxRslts[0].commit();
+    await rtn.txExpPsRslts[0].commit();
   } catch (err) {
-    if (rtn.psTxRslts[0] && rtn.psTxRslts[0].rollback) {
+    if (rtn.txExpPsRslts[0] && rtn.txExpPsRslts[0].rollback) {
       // unprepare will be called when calling rollback
       // (alt, could have called unprepare before rollback)
-      await rtn.psTxRslts[0].rollback();
+      await rtn.txExpPsRslts[0].rollback();
     }
     throw err;
   }

@@ -238,7 +238,6 @@ module.exports = class MSDialect {
           dlt.at.state.pending = 0;
         };
         if (opts.autoCommit) {
-          if (unprepare) await unprepare();
           await txEnd('commit');
         } else {
           dlt.at.state.pending++;
