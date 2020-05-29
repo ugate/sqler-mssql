@@ -1,0 +1,11 @@
+/* CSS for docs */
+.pkg-menu {
+  background-color: #fa8100 !important;
+  color: #ffffff !important;
+}
+.pkg-logo, .pkg-logo svg, .pkg-icons {
+  fill: #ffffff !important;
+}
+th + th, td + td {
+  padding-left: 1rem;
+}
