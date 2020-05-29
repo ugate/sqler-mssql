@@ -279,11 +279,12 @@ module.exports = class MSDialect {
       txo: txId ? dlt.at.txs.get(txId) : null
     };
     if (txId && !plan.txo) {
-      dlt.at.txs.set(txId, plan.txo = {
+      plan.txo = {
         txId,
         tx: dlt.at.pool.transaction()
-      });
+      };
       await plan.txo.tx.begin(opts.isolationLevel);
+      dlt.at.txs.set(txId, plan.txo);
     }
     if (!meta) return plan; // just initializing
     if (opts.prepareStatement) {
