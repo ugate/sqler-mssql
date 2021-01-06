@@ -17,7 +17,8 @@ const imageType = require('image-type');
 // TODO : import * as readChunk from 'readChunk';
 // TODO : import * as imageType from 'imageType';
 
-const priv = {
+const CONF_SUFFIX_VAR = 'SQLER_CONF_FILE_SUFFIX';
+const test = {
   mgr: null,
   cache: null,
   rowCount: 2,
@@ -35,61 +36,61 @@ class Tester {
    * Create table(s) used for testing
    */
   static async before() {
-    priv.ci = 'CI' in process.env;
-    Labrat.header(`${priv.vendor}: Creating test tables (if any)${priv.ci ? ` CI=${priv.ci}` : ''}`);
+    test.suffix = CONF_SUFFIX_VAR in process.env;
+    Labrat.header(`${test.vendor}: Creating test tables (if any)${test.suffix ? ` ${CONF_SUFFIX_VAR}=${test.suffix}` : ''}`);
     
     const conf = getConf();
-    priv.cache = null;
-    priv.mgr = new Manager(conf, priv.cache, priv.mgrLogit || generateTestAbyssLogger);
-    await priv.mgr.init();
+    test.cache = null;
+    test.mgr = new Manager(conf, test.cache, test.mgrLogit || generateTestAbyssLogger);
+    await test.mgr.init();
     
-    if (priv.mgr.db[priv.vendor].setup) {
-      const createDB = getCrudOp('create', priv.vendor, 'database', true);
-      await createDB(priv.mgr, priv.vendor);
-      const createTB = getCrudOp('create', priv.vendor, 'tables', true);
-      await createTB(priv.mgr, priv.vendor);
+    if (test.mgr.db[test.vendor].setup) {
+      const createDB = getCrudOp('create', test.vendor, 'database', true);
+      await createDB(test.mgr, test.vendor);
+      const createTB = getCrudOp('create', test.vendor, 'tables', true);
+      await createTB(test.mgr, test.vendor);
     }
-    priv.created = true;
+    test.created = true;
   }
 
   /**
    * Drop table(s) used for testing
    */
   static async after() {
-    if (!priv.created) {
-      Labrat.header(`${priv.vendor}: Skipping dropping of test tables/database`);
+    if (!test.created) {
+      Labrat.header(`${test.vendor}: Skipping dropping of test tables/database`);
       return;
     }
-    Labrat.header(`${priv.vendor}: Dropping test tables/database (if any)`);
+    Labrat.header(`${test.vendor}: Dropping test tables/database (if any)`);
     
     const conf = getConf();
-    priv.cache = null;
-    if (!priv.mgr) {
-      priv.mgr = new Manager(conf, priv.cache, priv.mgrLogit || generateTestAbyssLogger);
-      await priv.mgr.init();
+    test.cache = null;
+    if (!test.mgr) {
+      test.mgr = new Manager(conf, test.cache, test.mgrLogit || generateTestAbyssLogger);
+      await test.mgr.init();
     }
     
     try {
-      if (priv.mgr.db[priv.vendor].setup) {
-        const deleteTB = getCrudOp('delete', priv.vendor, 'tables', true);
-        await deleteTB(priv.mgr, priv.vendor);
-        const deleteDB = getCrudOp('delete', priv.vendor, 'database', true);
-        await deleteDB(priv.mgr, priv.vendor);
+      if (test.mgr.db[test.vendor].setup) {
+        const deleteTB = getCrudOp('delete', test.vendor, 'tables', true);
+        await deleteTB(test.mgr, test.vendor);
+        const deleteDB = getCrudOp('delete', test.vendor, 'database', true);
+        await deleteDB(test.mgr, test.vendor);
       }
-      priv.created = false;
+      test.created = false;
     } catch (err) {
-      if (LOGGER.warn) LOGGER.warn(`${priv.vendor}: Failed to delete tables/database${priv.ci ? ` (CI=${priv.ci})` : ''}`, err);
+      if (LOGGER.warn) LOGGER.warn(`${test.vendor}: Failed to delete tables/database${test.suffix ? ` (${CONF_SUFFIX_VAR}=${test.suffix})` : ''}`, err);
       throw err;
     }
-    return priv.mgr.close();
+    return test.mgr.close();
   }
 
   /**
    * Start cache (if present)
    */
   static async beforeEach() {
-    const cch = priv.cache;
-    priv.cache = null;
+    const cch = test.cache;
+    test.cache = null;
     if (cch && cch.start) await cch.start();
   }
 
@@ -97,8 +98,8 @@ class Tester {
    * Stop cache (if present)
    */
   static async afterEach() {
-    const cch = priv.cache;
-    priv.cache = null;
+    const cch = test.cache;
+    test.cache = null;
     if (cch && cch.stop) await cch.stop();
   }
 
@@ -108,7 +109,7 @@ class Tester {
    * Test CRUD operations for a specified `priv.vendor` and `priv.mgr`
    */
   static async crud() {
-    Labrat.header(`${priv.vendor}: Running CRUD tests`, 'info');
+    Labrat.header(`${test.vendor}: Running CRUD tests`, 'info');
     const rslts = new Array(3);
     let rslti = -1, lastUpdated;
 
@@ -146,40 +147,40 @@ class Tester {
 
     let create, read, update, del;
 
-    create = getCrudOp('create', priv.vendor, 'table.rows');
-    rslts[++rslti] = await create(priv.mgr, priv.vendor);
+    create = getCrudOp('create', test.vendor, 'table.rows');
+    rslts[++rslti] = await create(test.mgr, test.vendor);
     crudly(rslts[rslti], 'create');
   
-    read = getCrudOp('read', priv.vendor, 'table.rows');
-    rslts[++rslti] = await read(priv.mgr, priv.vendor);
+    read = getCrudOp('read', test.vendor, 'table.rows');
+    rslts[++rslti] = await read(test.mgr, test.vendor);
     crudly(rslts[rslti], 'read', 'TABLE');
 
-    update = getCrudOp('update', priv.vendor, 'table.rows');
-    rslts[++rslti] = await update(priv.mgr, priv.vendor);
+    update = getCrudOp('update', test.vendor, 'table.rows');
+    rslts[++rslti] = await update(test.mgr, test.vendor);
     crudly(rslts[rslti], 'update');
   
-    rslts[++rslti] = await read(priv.mgr, priv.vendor);
+    rslts[++rslti] = await read(test.mgr, test.vendor);
     crudly(rslts[rslti], 'update read', 'UPDATE');
   
-    del = getCrudOp('delete', priv.vendor, 'table.rows');
-    rslts[++rslti] = await del(priv.mgr, priv.vendor);
+    del = getCrudOp('delete', test.vendor, 'table.rows');
+    rslts[++rslti] = await del(test.mgr, test.vendor);
     crudly(rslts[rslti], 'delete');
   
-    rslts[++rslti] = await read(priv.mgr, priv.vendor);
+    rslts[++rslti] = await read(test.mgr, test.vendor);
     crudly(rslts[rslti], 'delete read', null, 0);
 
-    if (LOGGER.debug) LOGGER.debug(`CRUD ${priv.vendor} execution results:`, ...rslts);
-    Labrat.header(`${priv.vendor}: Completed CRUD tests`, 'info');
+    if (LOGGER.debug) LOGGER.debug(`CRUD ${test.vendor} execution results:`, ...rslts);
+    Labrat.header(`${test.vendor}: Completed CRUD tests`, 'info');
     return rslts;
   }
 
   static async sqlInvalidThrow() {
-    return priv.mgr.db[priv.vendor].error.update.non.exist({}, ['error']);
+    return test.mgr.db[test.vendor].error.update.non.exist({}, ['error']);
   }
 
   static async bindsInvalidThrow() {
     const date = new Date();
-    return priv.mgr.db[priv.vendor].create.table.rows({
+    return test.mgr.db[test.vendor].create.table.rows({
       binds: {
         id: 500, name: 'SHOULD NEVER GET INSERTED', created: date, updated: date,
         id2: 500, name2: 'SHOULD NEVER GET INSERTED', /* report2 missing should throw error */ created2: date, updated2: date
@@ -192,9 +193,9 @@ class Tester {
   static async initThrow() {
     // need to set a conf override to prevent overwritting of privateConf.username
     const conf = getConf({ pool: null });
-    conf.univ.db[priv.vendor].username = 'invalid';
-    conf.univ.db[priv.vendor].password = 'invalid';
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit || generateTestAbyssLogger);
+    conf.univ.db[test.vendor].username = 'invalid';
+    conf.univ.db[test.vendor].password = 'invalid';
+    const mgr = new Manager(conf, test.cache, test.mgrLogit || generateTestAbyssLogger);
     await mgr.init();
     return mgr.close();
   }
@@ -225,14 +226,14 @@ class Tester {
         }
       }
     });
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit);
+    const mgr = new Manager(conf, test.cache, test.mgrLogit);
     await mgr.init();
     return mgr.close();
   }
 
   static async driverOptionsNone() {
     const conf = getConf({ driverOptions: null });
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit);
+    const mgr = new Manager(conf, test.cache, test.mgrLogit);
     await mgr.init();
     return mgr.close();
   }
@@ -245,25 +246,26 @@ class Tester {
         conn[prop].connection = null;
       }
     });
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit);
+    const mgr = new Manager(conf, test.cache, test.mgrLogit);
     await mgr.init();
     return mgr.close();
   }
 
   static async hostPortSwap() {
     // need to set a conf override to prevent overwritting of privateConf properties for other tests
-    const conf = getConf({ pool: null });
-    if (conf.univ.db[priv.vendor].host) {
-      delete conf.univ.db[priv.vendor].host;
+    const conf = getConf({ pool: null }), realConf = getConf();
+    if (conf.univ.db[test.vendor].host) {
+      //delete conf.univ.db[test.vendor].host;
+      conf.univ.db[test.vendor].host = 'sqler_mssql_database'; // need to use alias hostname from docker "links"
     } else {
-      conf.univ.db[priv.vendor].host = "localhost";
+      conf.univ.db[test.vendor].host = realConf.univ.db[test.vendor].host;
     }
-    if (conf.univ.db[priv.vendor].hasOwnProperty('port')) {
-      delete conf.univ.db[priv.vendor].port;
+    if (conf.univ.db[test.vendor].hasOwnProperty('port')) {
+      delete conf.univ.db[test.vendor].port;
     } else {
-      conf.univ.db[priv.vendor].port = priv.defaultPort;
+      conf.univ.db[test.vendor].port = test.defaultPort;
     }
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit);
+    const mgr = new Manager(conf, test.cache, test.mgrLogit);
     await mgr.init();
     return mgr.close();
   }
@@ -273,14 +275,14 @@ class Tester {
     const conn = JSON.parse(JSON.stringify(conf.db.connections[0]));
     conn.name += '2';
     conf.db.connections.push(conn);
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit);
+    const mgr = new Manager(conf, test.cache, test.mgrLogit);
     await mgr.init();
     return mgr.close();
   }
 
   static async closeBeforeInit() {
     const conf = getConf();
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit || generateTestAbyssLogger);
+    const mgr = new Manager(conf, test.cache, test.mgrLogit || generateTestAbyssLogger);
     return mgr.close();
   }
 
@@ -292,17 +294,17 @@ class Tester {
         conn[prop].min = conn[prop].max = poolCount;
       }
     });
-    const mgr = new Manager(conf, priv.cache, priv.mgrLogit || generateTestAbyssLogger);
+    const mgr = new Manager(conf, test.cache, test.mgrLogit || generateTestAbyssLogger);
     await mgr.init();
 
     const state = await mgr.state();
     expect(state, 'state').to.be.object();
     expect(state.result, 'state.result').to.be.object();
-    expect(state.result[priv.vendor], `state.result.${priv.vendor}`).to.be.object();
-    expect(state.result[priv.vendor].pending, `state.result.${priv.vendor}.pending`).to.equal(0);
-    expect(state.result[priv.vendor].connection, `state.result.${priv.vendor}.connection`).to.be.object();
-    expect(state.result[priv.vendor].connection.count, `state.result.${priv.vendor}.connection.count`).to.equal(poolCount);
-    expect(state.result[priv.vendor].connection.inUse, `state.result.${priv.vendor}.connection.inUse`).to.equal(0);
+    expect(state.result[test.vendor], `state.result.${test.vendor}`).to.be.object();
+    expect(state.result[test.vendor].pending, `state.result.${test.vendor}.pending`).to.equal(0);
+    expect(state.result[test.vendor].connection, `state.result.${test.vendor}.connection`).to.be.object();
+    expect(state.result[test.vendor].connection.count, `state.result.${test.vendor}.connection.count`).to.equal(poolCount);
+    expect(state.result[test.vendor].connection.inUse, `state.result.${test.vendor}.connection.inUse`).to.equal(0);
 
     return mgr.close();
   }
@@ -319,13 +321,13 @@ module.exports = Tester;
  * @returns {Object} The configuration
  */
 function getConf(overrides) {
-  let conf = priv.conf[priv.vendor];
+  let conf = test.conf[test.vendor];
   if (!conf) {
-    conf = priv.conf[priv.vendor] = JSON.parse(Fs.readFileSync(Path.join(`test/fixtures/${priv.vendor}`, `conf${priv.ci ? '-ci' : ''}.json`), 'utf8'));
-    if (!priv.univ) {
-      priv.univ = JSON.parse(Fs.readFileSync(Path.join('test/fixtures', `priv${priv.ci ? '-ci' : ''}.json`), 'utf8')).univ;
+    conf = test.conf[test.vendor] = JSON.parse(Fs.readFileSync(Path.join(`test/fixtures/${test.vendor}`, `conf${test.suffix || ''}.json`), 'utf8'));
+    if (!test.univ) {
+      test.univ = JSON.parse(Fs.readFileSync(Path.join('test/fixtures', `priv${test.suffix || ''}.json`), 'utf8')).univ;
     }
-    conf.univ = priv.univ;
+    conf.univ = test.univ;
     conf.mainPath = 'test';
     conf.db.dialects.mssql = './test/dialects/test-dialect.js';
   }

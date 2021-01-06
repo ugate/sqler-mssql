@@ -2,6 +2,7 @@
   "univ": {
     "db": {
       "mssql": {
+        "host": "sqler_mssql",
         "username":"sa",
         "password": "sqlS3rv35local"
       }

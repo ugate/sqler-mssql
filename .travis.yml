@@ -1,40 +1,36 @@
 # When a tagged commit is pushed the documentation pages and npm module are published/deployed:
 os: linux
 # linux dist that includes C++ compiler needed for native node modules
-dist: bionic
-# npm version patch -m "%s Release"
-language: node_js
-node_js:
-  - "lts/*"
+dist: focal
+language: minimal
+services:
+  - docker
 env:
-  - REPO_VER=v1.5.5 MSSQL_VER=2019 MSSQL_SA_PWD=sqlS3rv35local MSSQL_PWD=390Khy7MxeU8N
+  - DOCKER_COMPOSE_VERSION=1.27.4
 before_install:
-  - sudo apt-get install unixodbc unixodbc-dev
-  - wget -O install-mssql.sh https://raw.githubusercontent.com/ugate/repo/$REPO_VER/mssql/install.sh
-  - bash ./install-mssql.sh
-  - rm -rf install-mssql.sh
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker-compose build sqler_mssql_dialect
+  - docker-compose up -d
+  - docker ps -a
+  - chmod +x test/run.sh
 branches:
   only:
     - master
     - "/v*/"
 script:
-# - printenv
-  - "npm test"
+  - test/run.sh sqler_mssql sqler_mssql_dialect "npm test"
 deploy:
-  #edge: true # avoid dpl v2 missing api_token
   - provider: script
     skip_cleanup: true # deprecated, use cleanup with new dpl ver
     cleanup: false
-    script: npm run jsdocp-deploy
-    on:
-      tags: true # only on tagging commit
-      branch:
-        - /v(\d+\.)?(\d+\.)?(\*|\d+)$/
-  - provider: npm
-    skip_cleanup: false # deprecated, use cleanup with new dpl ver
-    cleanup: true
-    email: "ugate.public@gmail.com"
-    api_token: $NPM_TOKEN  # Set in the settings page of your repository, as a secure variable
+    script: test/run.sh sqler_mssql sqler_mssql_dialect npm_deploy
     on:
       tags: true # only on tagging commit
       branch:

@@ -10,6 +10,8 @@
     "test": "lab --leaks -v -P test -c --coverage-exclude lib -t 85 -e prod",
     "test-debug": "lab --inspect-brk -v -P test -c --coverage-exclude lib -t 85 -e prod",
     "test-crud": "env NODE_ENV=test node test/lib/main.js crud",
+    "pretest-docker": "npm install",
+    "test-docker": "node test/server.js",
     "jsdocp": "jsdocp ./jsdocp/jsdoc.json",
     "jsdocp-deploy": "jsdocp -D ./jsdocp/jsdoc.json"
   },
@@ -36,12 +38,12 @@
     "@ugate/labrat": "^2.1.0",
     "image-type": "^4.1.0",
     "jsdoc": "^3.6.6",
-    "jsdocp": "^1.0.3",
+    "jsdocp": "^1.2.2",
     "minami": "^1.2.3",
     "moment-db": "^2.0.0",
-    "mssql": "^6.3.0",
+    "mssql": "^6.3.1",
     "read-chunk": "^3.2.0",
-    "sqler": "^5.13.2"
+    "sqler": "^5.14.0"
   },
   "files": [
     "/index.js",
