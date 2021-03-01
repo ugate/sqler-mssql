@@ -102,7 +102,7 @@ module.exports = class MSTestDialect extends MSDialect {
 
 /**
  * Expects the SQL Server driver options (when present)
- * @param {Manager~ConnectionOptions} opts The connection options to check
+ * @param {SQLERConnectionOptions} opts The connection options to check
  * @param {MSTestDialect} dlt The test dialect
  */
 function expectDriverOptions(opts, dlt) {

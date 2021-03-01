@@ -13,7 +13,7 @@ services:
   sqler_mssql:
     image: mcr.microsoft.com/mssql/server:latest
     container_name: sqler_mssql
-    restart: always
+    restart: unless-stopped
     environment:
       <<: *env-vars
     networks:
@@ -22,6 +22,8 @@ services:
       test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
       timeout: 20s
       retries: 10
+    ports:
+      - 1433:1433
   # NodeJS for sqler dialect testing
   sqler_mssql_dialect:
     container_name: sqler_mssql_dialect
