@@ -44,6 +44,7 @@ services:
       retries: 10
     ports:
       - 4002:80
+      - 9229:9229
     restart: unless-stopped
     environment:
       <<: [ *env-vars, *env-tokens ]
