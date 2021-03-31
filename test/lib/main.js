@@ -271,7 +271,7 @@ class Tester {
   }
 
   static async multipleConnections() {
-    const conf = getConf();
+    const conf = getConf({} /*pass obj so conf is copy*/);
     const conn = JSON.parse(JSON.stringify(conf.db.connections[0]));
     conn.name += '2';
     conf.db.connections.push(conn);
