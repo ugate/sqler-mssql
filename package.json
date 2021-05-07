@@ -1,6 +1,6 @@
 {
   "name": "sqler-mssql",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "@ugate/sqler dialect for SQL Server",
   "main": "index.js",
   "engines": {
