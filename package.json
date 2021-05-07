@@ -33,17 +33,17 @@
   },
   "homepage": "https://ugate.github.io/sqler-mssql",
   "devDependencies": {
-    "@hapi/code": "^8.0.2",
-    "@hapi/lab": "^24.1.1",
+    "@hapi/code": "^8.0.3",
+    "@hapi/lab": "^24.2.1",
     "@ugate/labrat": "^2.1.0",
     "image-type": "^4.1.0",
     "jsdoc": "^3.6.6",
     "jsdocp": "^1.2.2",
     "minami": "^1.2.3",
     "moment-db": "^2.0.0",
-    "mssql": "^6.3.1",
+    "mssql": "^7.0.0",
     "read-chunk": "^3.2.0",
-    "sqler": "^7.0.0"
+    "sqler": "^7.2.1"
   },
   "files": [
     "/index.js",

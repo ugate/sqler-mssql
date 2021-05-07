@@ -57,7 +57,9 @@ module.exports = class MSDialect {
       if (connConf.pool.hasOwnProperty('max')) dlt.at.opts.connection.pool.max = connConf.pool.max;
       if (connConf.pool.hasOwnProperty('idle')) dlt.at.opts.connection.pool.idleTimeoutMillis = connConf.pool.idle;
       // if (connConf.pool.hasOwnProperty('increment')) dlt.at.opts.connection.pool.incrementSize = connConf.pool.increment; // not supported
-      if (connConf.pool.hasOwnProperty('timeout')) dlt.at.opts.connection.pool.connectionTimeout = connConf.pool.timeout;
+      // connectionTimeout is on "opts.connection" as of version >= 7 rather than on "opts.connection.pool"
+      // if (connConf.pool.hasOwnProperty('timeout')) dlt.at.opts.connection.pool.connectionTimeout = connConf.pool.timeout;
+      if (connConf.pool.hasOwnProperty('timeout')) dlt.at.opts.connection.connectionTimeout = connConf.pool.timeout;
     }
   }
 
@@ -74,7 +76,7 @@ module.exports = class MSDialect {
         dlt.at.logger(`sqler-mssql: Connection pool "${dlt.at.opts.id}" created with (${numSql} SQL files) ` +
           `max=${dlt.at.opts.connection.pool.max} min=${dlt.at.opts.connection.pool.min} ` + 
           `idleTimeoutMillis=${dlt.at.opts.connection.pool.idleTimeoutMillis} ` +
-          `connectionTimeout=${dlt.at.opts.connection.pool.connectionTimeout}`);
+          `connectionTimeout=${dlt.at.opts.connection.connectionTimeout}`);
       }
       dlt.at.pool.on('error', err => {
         if (dlt.at.errorLogger) {

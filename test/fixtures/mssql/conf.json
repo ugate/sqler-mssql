@@ -15,6 +15,7 @@
           "connection": {
             "options": {
               "encrypt": true,
+              "trustServerCertificate": true,
               "enableArithAbort": true
             }
           }

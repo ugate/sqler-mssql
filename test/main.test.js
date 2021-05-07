@@ -33,8 +33,9 @@ lab.experiment(plan, () => {
 
   lab.test(`${plan}: Connection Failure`, { timeout: TEST_LONG_TKO }, Labrat.expectFailure('onUnhandledRejection', { expect, label: 'init throw' }, Tester.initThrow));
   lab.test(`${plan}: Pool Property Defaults`, { timeout: TEST_TKO }, Tester.poolPropSwap);
-  lab.test(`${plan}: Driver Options None`, { timeout: TEST_TKO }, Tester.driverOptionsNone);
-  lab.test(`${plan}: Driver Options No Pool/Connection`, { timeout: TEST_TKO }, Tester.driverOptionsPoolConnNone);
+  // As of mssql version >= 7 no driver options will fail due to self signed cert since default options are set to: "encrypt = true" and "trustServerCertificate = false"
+  //lab.test(`${plan}: Driver Options None`, { timeout: TEST_TKO }, Tester.driverOptionsNone);
+  //lab.test(`${plan}: Driver Options No Pool/Connection`, { timeout: TEST_TKO }, Tester.driverOptionsPoolConnNone);
   lab.test(`${plan}: Host and Port Defaults`, { timeout: TEST_TKO }, Tester.hostPortSwap);
   lab.test(`${plan}: Multiple connections`, { timeout: TEST_TKO }, Tester.multipleConnections);
   lab.test(`${plan}: Close before init`, { timeout: TEST_TKO }, Tester.closeBeforeInit);
