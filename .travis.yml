@@ -1,12 +1,12 @@
 # When a tagged commit is pushed the documentation pages and npm module are published/deployed:
 os: linux
 # linux dist that includes C++ compiler needed for native node modules
-dist: focal
+dist: groovy
 language: minimal
 services:
   - docker
 env:
-  - DOCKER_COMPOSE_VERSION=1.27.4
+  - DOCKER_COMPOSE_VERSION=1.29.1
 before_install:
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
